@@ -1,0 +1,57 @@
+<%= form_with(model: customer, class: "contents") do |form| %>
+  <% if customer.errors.any? %>
+    <div id="error_explanation" class="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+      <h2 class="font-semibold mb-2"><%= pluralize(customer.errors.count, "件のエラー") %> が発生しました。</h2>
+      <ul class="list-disc ml-6 text-sm">
+        <% customer.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="bg-white rounded-2xl shadow p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div>
+        <label class="text-sm text-gray-700">コード</label>
+        <%= form.text_field :code, class: ["mt-1 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2", {"border-gray-300 focus:ring-blue-500": customer.errors[:code].none?, "border-red-300 focus:ring-red-500": customer.errors[:code].any?}] %>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">顧客名</label>
+        <%= form.text_field :name, class: ["mt-1 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2", {"border-gray-300 focus:ring-blue-500": customer.errors[:name].none?, "border-red-300 focus:ring-red-500": customer.errors[:name].any?}] %>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">会社名</label>
+        <%= form.text_field :company_name, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">フリガナ</label>
+        <%= form.text_field :kana, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">メール</label>
+        <%= form.email_field :email, class: ["mt-1 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2", {"border-gray-300 focus:ring-blue-500": customer.errors[:email].none?, "border-red-300 focus:ring-red-500": customer.errors[:email].any?}] %>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">電話番号</label>
+        <%= form.text_field :phone, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+      </div>
+      <div class="md:col-span-2">
+        <label class="text-sm text-gray-700">住所</label>
+        <%= form.text_area :address, rows: 3, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+      </div>
+      <div class="md:col-span-2">
+        <label class="text-sm text-gray-700">メモ</label>
+        <%= form.text_area :notes, rows: 4, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">ステータス</label>
+        <%= form.select :status, Customer.statuses.keys.map { |k| [ {"prospect"=>"見込み","active"=>"稼働中","inactive"=>"非アクティブ"}[k], k ] }, {}, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <%= form.submit class: "w-full sm:w-auto rounded-lg px-4 py-2 bg-primary-blue hover:bg-blue-700 text-white font-medium" %>
+    </div>
+  </div>
+<% end %>

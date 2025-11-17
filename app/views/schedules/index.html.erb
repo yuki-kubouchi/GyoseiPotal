@@ -1,0 +1,158 @@
+<% content_for :title, "スケジュール" %>
+
+<% content_for :head do %>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales-all.global.min.js"></script>
+<% end %>
+
+<div class="w-full">
+  <div class="mb-6 flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-800">スケジュール</h1>
+  </div>
+
+  <div class="mb-6 bg-white rounded-2xl shadow p-6">
+    <%= form_with url: schedules_path, method: :get, local: true, class: "grid grid-cols-1 md:grid-cols-5 gap-4" do %>
+      <div>
+        <label class="block text-sm text-gray-600">開始日</label>
+        <input type="date" name="start_date" value="<%= @start_date&.strftime('%Y-%m-%d') %>" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600">終了日</label>
+        <input type="date" name="end_date" value="<%= @end_date&.strftime('%Y-%m-%d') %>" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600">ステータス</label>
+        <select name="status" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">すべて</option>
+          <% Application.statuses.keys.each do |k| %>
+            <% label = {"draft"=>"下書き","submitted"=>"提出済","reviewing"=>"審査中","approved"=>"承認","rejected"=>"否認"}[k] %>
+            <option value="<%= k %>" <%= "selected" if @status==k %>><%= label %></option>
+          <% end %>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600">顧客</label>
+        <select name="customer_id" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">すべて</option>
+          <% Customer.order(:code).each do |c| %>
+            <option value="<%= c.id %>" <%= "selected" if @customer_id.to_s==c.id.to_s %>><%= c.code %> - <%= c.name %></option>
+          <% end %>
+        </select>
+      </div>
+      <div class="flex items-end gap-2">
+        <button type="submit" class="rounded-lg px-4 py-2 bg-gray-800 text-white hover:bg-gray-700">絞り込み</button>
+        <%= link_to "リセット", schedules_path, class: "rounded-lg px-4 py-2 bg-gray-100 text-gray-800 hover:bg-gray-50" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mb-6 bg-white rounded-2xl shadow p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold text-gray-800">カレンダー</h2>
+      <div class="inline-flex rounded-lg border border-gray-200 overflow-hidden">
+        <button type="button" id="btn-month" class="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-50">月</button>
+        <button type="button" id="btn-week" class="px-3 py-1.5 text-sm hover:bg-gray-50">週</button>
+        <button type="button" id="btn-today" class="px-3 py-1.5 text-sm hover:bg-gray-50">今日</button>
+      </div>
+    </div>
+    <div id="calendar" class="min-h-[600px]"></div>
+  </div>
+
+  <% if @by_date.present? %>
+    <div class="space-y-6">
+      <% @by_date.each do |date, apps| %>
+        <section class="bg-white rounded-2xl shadow">
+          <div class="px-6 py-4 border-b flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-800"><%= date.strftime('%Y/%m/%d') %></h2>
+            <span class="text-sm text-gray-500">予定: <%= apps.size %> 件</span>
+          </div>
+          <div class="divide-y divide-gray-100">
+            <% apps.each do |app| %>
+              <div class="px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 hover:bg-gray-50">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-3">
+                    <%# status badge %>
+                    <% case app.status
+                       when "draft" %>
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">下書き</span>
+                    <% when "submitted" %>
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-accent-pending">提出済</span>
+                    <% when "reviewing" %>
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-accent-warning">審査中</span>
+                    <% when "approved" %>
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-accent-success">承認</span>
+                    <% else %>
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">否認</span>
+                    <% end %>
+                    <p class="text-gray-900 font-medium truncate"><%= app.title %></p>
+                  </div>
+                  <p class="text-sm text-gray-500 mt-1 truncate">顧客: <%= app.customer&.code %> - <%= app.customer&.name %></p>
+                </div>
+                <div class="flex items-center gap-2 md:ml-4">
+                  <%= link_to "詳細", application_path(app), class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+                  <%= link_to "編集", edit_application_path(app), class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-2xl shadow p-10 text-center text-gray-500">該当する予定はありません。</div>
+  <% end %>
+</div>
+
+<script>
+  function initScheduleCalendar() {
+    if (!window.FullCalendar) return;
+    const calendarEl = document.getElementById('calendar');
+    if (!calendarEl) return;
+    // Destroy previous instance if any (for Turbo navigation)
+    if (calendarEl.__fc) {
+      try { calendarEl.__fc.destroy(); } catch (e) {}
+      calendarEl.__fc = null;
+    }
+    const url = new URL(window.location.href);
+    const baseParams = {
+      status: url.searchParams.get('status') || '',
+      customer_id: url.searchParams.get('customer_id') || ''
+    };
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      locale: 'ja',
+      initialView: 'dayGridMonth',
+      headerToolbar: { left: 'prev,next', center: 'title', right: '' },
+      height: 'auto',
+      firstDay: 0,
+      dayMaxEvents: true,
+      events: function(fetchInfo, successCallback, failureCallback) {
+        const params = new URLSearchParams({
+          start: fetchInfo.startStr,
+          end: fetchInfo.endStr,
+          status: baseParams.status,
+          customer_id: baseParams.customer_id
+        });
+        fetch(`/schedules.json?${params.toString()}`)
+          .then(r => r.json())
+          .then(data => successCallback(data))
+          .catch(err => failureCallback(err));
+      },
+      eventClick: function(info) {
+        if (info.event.url) { window.location.href = info.event.url; }
+        info.jsEvent.preventDefault();
+      }
+    });
+    calendar.render();
+    calendarEl.__fc = calendar;
+    const btnMonth = document.getElementById('btn-month');
+    const btnWeek = document.getElementById('btn-week');
+    const btnToday = document.getElementById('btn-today');
+    if (btnMonth) btnMonth.addEventListener('click', () => calendar.changeView('dayGridMonth'));
+    if (btnWeek) btnWeek.addEventListener('click', () => calendar.changeView('timeGridWeek'));
+    if (btnToday) btnToday.addEventListener('click', () => calendar.today());
+  }
+  document.addEventListener('DOMContentLoaded', initScheduleCalendar);
+  document.addEventListener('turbo:load', initScheduleCalendar);
+  document.addEventListener('turbo:render', initScheduleCalendar);
+</script>

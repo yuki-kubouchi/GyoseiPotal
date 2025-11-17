@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+/* Tailwind v4 theme tokens */
+@theme {
+  --color-primary-blue: #1e3a8a;
+  --color-secondary-gray: #f3f4f6;
+  --color-accent-success: #10b981;
+  --color-accent-warning: #f59e0b;
+  --color-accent-pending: #3b82f6;
+}
+
+/* Base styles */
+body {
+  font-family: 'Inter', 'Noto Sans JP', sans-serif;
+  background-color: #f8fafc;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar { width: 8px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background-color: #9ca3af; border-radius: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background-color: #f1f5f9; }
+
+/* Icon style similar to lucide */
+.icon { width: 24px; height: 24px; stroke-width: 2; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }

@@ -1,0 +1,40 @@
+<%= form_with(model: invoice, class: "contents") do |form| %>
+  <% if invoice.errors.any? %>
+    <div class="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+      <h2 class="font-semibold mb-2"><%= pluralize(invoice.errors.count, "件のエラー") %> が発生しました。</h2>
+      <ul class="list-disc ml-6 text-sm">
+        <% invoice.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="bg-white rounded-2xl shadow p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div>
+        <label class="text-sm text-gray-700">顧客</label>
+        <%= form.collection_select :customer_id, Customer.order(:code), :id, :code, {}, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2" %>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">申請</label>
+        <%= form.collection_select :application_id, Application.order(:id), :id, :title, {}, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2" %>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">金額(円)</label>
+        <%= form.number_field :amount_yen, min: 0, step: 1, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2" %>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">発行日</label>
+        <%= form.date_field :issued_on, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2" %>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">ステータス</label>
+        <%= form.select :status, Invoice.statuses.keys.map { |k| [ {"drafted"=>"下書き","issued"=>"発行","paid"=>"入金","canceled"=>"取消"}[k], k ] }, {}, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2" %>
+      </div>
+    </div>
+    <div class="mt-6">
+      <%= form.submit class: "w-full sm:w-auto rounded-lg px-4 py-2 bg-primary-blue hover:bg-blue-700 text-white font-medium" %>
+    </div>
+  </div>
+<% end %>

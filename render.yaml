@@ -1,0 +1,27 @@
+# render.yaml
+
+services:
+  - type: web
+    name: gyosei-potal
+    env: ruby
+    buildCommand: "./bin/bundle install && ./bin/rails assets:precompile"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: RAILS_SERVE_STATIC_FILES
+        value: "true"
+      - key: RACK_ENV
+        value: production
+      # データベース接続情報はRenderのダッシュボードで設定
+    plan: free
+
+  - type: db
+    name: gyosei-potal-db
+    databaseName: gyosei_potal_production
+    user: gyosei_potal_user
+    plan: free
+    engine: mysql
+    version: "8.0"

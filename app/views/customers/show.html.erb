@@ -1,0 +1,114 @@
+<% content_for :title, "顧客詳細" %>
+
+<div class="w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-600 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <div class="mb-6 flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-800">顧客詳細</h1>
+    <div class="flex gap-2">
+      <%= link_to "編集", edit_customer_path(@customer), class: "rounded-lg px-4 py-2 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+      <%= button_to "削除", @customer, method: :delete, class: "rounded-lg px-4 py-2 text-white bg-red-600 hover:bg-red-500", data: { turbo_confirm: "削除してよろしいですか？" } %>
+      <%= link_to "一覧へ", customers_path, class: "rounded-lg px-4 py-2 bg-primary-blue text-white hover:bg-blue-700" %>
+    </div>
+  </div>
+
+  <div class="mt-8 bg-white rounded-2xl shadow">
+    <div class="flex items-center justify-between px-6 py-4 border-b">
+      <h2 class="text-lg font-semibold text-gray-800">関連申請</h2>
+      <%= link_to "新規申請", new_application_path(customer_id: @customer.id), class: "rounded-lg px-4 py-2 bg-primary-blue text-white hover:bg-blue-700" %>
+    </div>
+    <div class="overflow-x-auto">
+      <% if @customer.applications.any? %>
+        <table class="min-w-full text-sm">
+          <thead class="bg-secondary-gray text-gray-700">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold">タイトル</th>
+              <th class="px-4 py-3 text-left font-semibold">期限</th>
+              <th class="px-4 py-3 text-left font-semibold">ステータス</th>
+              <th class="px-4 py-3 text-right font-semibold">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @customer.applications.order(due_on: :asc).each do |app| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-gray-900"><%= app.title %></td>
+                <td class="px-4 py-3 text-gray-700"><%= app.due_on %></td>
+                <td class="px-4 py-3">
+                  <% case app.status
+                     when "draft" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">下書き</span>
+                  <% when "submitted" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-accent-pending">提出済</span>
+                  <% when "reviewing" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-accent-warning">審査中</span>
+                  <% when "approved" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-accent-success">承認</span>
+                  <% else %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">否認</span>
+                  <% end %>
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <div class="inline-flex gap-2">
+                    <%= link_to "表示", app, class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+                    <%= link_to "編集", edit_application_path(app), class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+                    <%= button_to "削除", app, method: :delete, class: "rounded-md px-3 py-1.5 text-white bg-red-600 hover:bg-red-500", data: { turbo_confirm: "削除してよろしいですか？" } %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="px-6 py-10 text-center text-gray-500">関連する申請はありません。</div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <div class="text-sm text-gray-500">コード</div>
+        <div class="mt-1 text-gray-900 font-medium"><%= @customer.code %></div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">顧客名</div>
+        <div class="mt-1 text-gray-900 font-medium"><%= @customer.name %></div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">会社名</div>
+        <div class="mt-1 text-gray-900"><%= @customer.company_name %></div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">ステータス</div>
+        <div class="mt-1">
+          <% case @customer.status
+             when "prospect" %>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-accent-warning">見込み</span>
+          <% when "active" %>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-accent-success">稼働中</span>
+          <% else %>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">非アクティブ</span>
+          <% end %>
+        </div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">メール</div>
+        <div class="mt-1 text-gray-900"><%= @customer.email %></div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">電話番号</div>
+        <div class="mt-1 text-gray-900"><%= @customer.phone %></div>
+      </div>
+      <div class="md:col-span-2">
+        <div class="text-sm text-gray-500">住所</div>
+        <div class="mt-1 text-gray-900"><%= simple_format(@customer.address) %></div>
+      </div>
+      <div class="md:col-span-2">
+        <div class="text-sm text-gray-500">メモ</div>
+        <div class="mt-1 text-gray-900"><%= simple_format(@customer.notes) %></div>
+      </div>
+    </div>
+  </div>
+</div>

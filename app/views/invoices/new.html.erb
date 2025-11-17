@@ -1,0 +1,10 @@
+<% content_for :title, "請求の新規作成" %>
+
+<div class="w-full">
+  <div class="mb-6 flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-800">請求の新規作成</h1>
+    <%= link_to "一覧へ", invoices_path, class: "rounded-lg px-4 py-2 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+  </div>
+
+  <%= render "form", invoice: @invoice %>
+</div>

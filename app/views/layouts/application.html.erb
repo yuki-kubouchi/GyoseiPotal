@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>GyoseiPotal</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="min-h-screen flex">
+    <!-- message box -->
+    <div id="message-box" class="fixed top-5 right-5 hidden bg-white border border-primary-blue text-primary-blue px-6 py-3 rounded-lg shadow-xl z-50 transition transform duration-300">
+      <div class="flex items-center justify-between">
+        <span id="message-text"></span>
+        <button onclick="closeMessageBox()" class="ml-4 text-primary-blue hover:text-gray-700">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- overlay (mobile) -->
+    <div id="overlay" class="fixed inset-0 bg-black opacity-50 z-30 md:hidden hidden" onclick="toggleSidebar()"></div>
+
+    <!-- sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 transform w-64 bg-primary-blue text-white shadow-xl transition-transform duration-300 ease-in-out z-40 md:relative md:translate-x-0 flex flex-col">
+      <div class="p-6 border-b border-blue-800">
+        <h1 class="text-2xl font-extrabold tracking-wider">行政書士 Portal</h1>
+        <p class="text-sm opacity-75 mt-1">申請・日程管理</p>
+      </div>
+      <nav class="flex-grow p-4 space-y-2 custom-scrollbar overflow-y-auto">
+        <a href="<%= root_path %>" class="flex items-center p-3 rounded-xl hover:bg-blue-700/50 transition duration-150">
+          <svg class="icon mr-3" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>ダッシュボード</span>
+        </a>
+        <a href="<%= applications_path %>" class="flex items-center p-3 rounded-xl hover:bg-blue-700/50 transition duration-150">
+          <svg class="icon mr-3" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+          <span>申請一覧</span>
+        </a>
+        <a href="<%= schedules_path %>" class="flex items-center p-3 rounded-xl hover:bg-blue-700/50 transition duration-150">
+          <svg class="icon mr-3" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span>スケジュール</span>
+        </a>
+        <a href="<%= customers_path %>" class="flex items-center p-3 rounded-xl hover:bg-blue-700/50 transition duration-150">
+          <svg class="icon mr-3" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span>顧客情報</span>
+        </a>
+        <div class="h-px bg-blue-700 my-4"></div>
+        <a href="#" class="flex items-center p-3 rounded-xl hover:bg-blue-700/50 transition duration-150">
+          <svg class="icon mr-3" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V15z"></path></svg>
+          <span>設定</span>
+        </a>
+      </nav>
+      <div class="p-4 border-t border-blue-800">
+        <p class="text-sm opacity-75"> 2025 Gyoseishoshi App</p>
+      </div>
+    </aside>
+
+    <!-- main content area -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto custom-scrollbar">
+      <%= yield %>
+    </main>
+
+    <script>
+      function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden');
+      }
+      function viewApplication(id) {
+        const messageBox = document.getElementById('message-box');
+        const messageText = document.getElementById('message-text');
+        messageText.textContent = `ID: ${id} `;
+        messageBox.classList.remove('hidden');
+        setTimeout(() => { messageBox.classList.add('hidden'); }, 3000);
+      }
+      function closeMessageBox() { document.getElementById('message-box').classList.add('hidden'); }
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.innerWidth < 768) {
+          document.getElementById('sidebar').classList.add('-translate-x-full');
+          document.getElementById('overlay').classList.add('hidden');
+        }
+      });
+    </script>
+  </body>
+</html>

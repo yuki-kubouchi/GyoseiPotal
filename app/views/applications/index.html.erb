@@ -1,0 +1,162 @@
+<% content_for :title, "申請一覧" %>
+
+<div class="w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-600 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <div class="mb-6 flex flex-col gap-4">
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-gray-800">申請一覧
+        <% if defined?(@applications) && @applications.respond_to?(:total_count) %>
+          <span class="ml-2 align-middle rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">合計 <%= @applications.total_count %> 件</span>
+        <% end %>
+      </h1>
+      <div class="flex items-center gap-2">
+        <%= link_to "CSVエクスポート", applications_path(request.query_parameters.merge(format: :csv, page: nil)), class: "inline-flex items-center rounded-lg px-3 py-2 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+        <%= link_to "新規申請", new_application_path, class: "inline-flex items-center rounded-lg px-4 py-2 bg-primary-blue text-white hover:bg-blue-700 transition shadow" %>
+      </div>
+    </div>
+    <div class="flex items-center justify-between">
+      <div class="inline-flex rounded-lg border border-gray-200 overflow-hidden">
+        <% base = request.query_parameters.except(:page) %>
+        <%= link_to "すべて", applications_path(base.merge(due: nil)), class: "px-3 py-1.5 text-sm #{ @due.blank? ? 'bg-gray-800 text-white' : 'bg-gray-100 hover:bg-gray-50 text-gray-800' }" %>
+        <%= link_to "期限超過", applications_path(base.merge(due: 'overdue')), class: "px-3 py-1.5 text-sm #{ @due=='overdue' ? 'bg-red-600 text-white' : 'bg-gray-100 hover:bg-gray-50 text-gray-800' }" %>
+        <%= link_to "7日以内", applications_path(base.merge(due: 'soon')), class: "px-3 py-1.5 text-sm #{ @due=='soon' ? 'bg-yellow-500 text-white' : 'bg-gray-100 hover:bg-gray-50 text-gray-800' }" %>
+      </div>
+    </div>
+    <%= form_with url: applications_path, method: :get, local: true, class: "grid grid-cols-1 md:grid-cols-6 gap-3" do %>
+      <div>
+        <label class="block text-sm text-gray-600">検索（タイトル）</label>
+        <input type="text" name="q" value="<%= @q %>" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例: 建設業許可" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600">ステータス</label>
+        <select name="status" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">すべて</option>
+          <% Application.statuses.keys.each do |k| %>
+            <% label = {"draft"=>"下書き","submitted"=>"提出済","reviewing"=>"審査中","approved"=>"承認","rejected"=>"否認"}[k] %>
+            <option value="<%= k %>" <%= "selected" if @status==k %>><%= label %></option>
+          <% end %>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600">顧客</label>
+        <select name="customer_id" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">すべて</option>
+          <% Customer.order(:code).each do |c| %>
+            <option value="<%= c.id %>" <%= "selected" if @customer_id==c.id.to_s %>><%= c.code %> - <%= c.name %></option>
+          <% end %>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600">期限（開始）</label>
+        <input type="date" name="start_date" value="<%= @start_date&.strftime('%Y-%m-%d') %>" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600">期限（終了）</label>
+        <input type="date" name="end_date" value="<%= @end_date&.strftime('%Y-%m-%d') %>" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600">表示件数</label>
+        <select name="per" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <% [10,20,50,100].each do |n| %>
+            <option value="<%= n %>" <%= "selected" if (@per||10).to_i==n %>><%= n %> 件</option>
+          <% end %>
+        </select>
+      </div>
+      <div class="flex items-end gap-2">
+        <input type="hidden" name="sort" value="<%= @sort %>">
+        <input type="hidden" name="direction" value="<%= @direction %>">
+        <button type="submit" class="rounded-lg px-4 py-2 bg-gray-800 text-white hover:bg-gray-700">検索</button>
+        <%= link_to "リセット", applications_path, class: "rounded-lg px-4 py-2 bg-gray-100 text-gray-800 hover:bg-gray-50" %>
+      </div>
+    <% end %>
+    <%= form_with url: import_applications_path, method: :post, html: { multipart: true }, local: true, class: "flex items-center gap-2" do %>
+      <label class="text-sm text-gray-600">CSVインポート</label>
+      <input type="file" name="file" accept=".csv" class="block rounded-lg border border-gray-300 px-3 py-2" />
+      <button type="submit" class="rounded-lg px-4 py-2 bg-gray-800 text-white hover:bg-gray-700">取り込み</button>
+    <% end %>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <% if @applications.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-secondary-gray text-gray-700 sticky top-0 z-10">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold">
+                <% is = (@sort=="title"); dir = (is && @direction=="asc") ? "desc" : "asc" %>
+                <%= link_to applications_path(request.query_parameters.merge(sort: "title", direction: dir, page: nil)) , class: "group inline-flex items-center hover:underline" do %>
+                  タイトル
+                  <% if is %>
+                    <span class="ml-1 text-xs text-gray-600"><%= @direction=="asc" ? "▲" : "▼" %></span>
+                  <% end %>
+                <% end %>
+              </th>
+              <th class="px-4 py-3 text-left font-semibold">
+                <% is = (@sort=="due_on"); dir = (is && @direction=="asc") ? "desc" : "asc" %>
+                <%= link_to applications_path(request.query_parameters.merge(sort: "due_on", direction: dir, page: nil)) , class: "group inline-flex items-center hover:underline" do %>
+                  期限
+                  <% if is %>
+                    <span class="ml-1 text-xs text-gray-600"><%= @direction=="asc" ? "▲" : "▼" %></span>
+                  <% end %>
+                <% end %>
+              </th>
+              <th class="px-4 py-3 text-left font-semibold">
+                <% is = (@sort=="status"); dir = (is && @direction=="asc") ? "desc" : "asc" %>
+                <%= link_to applications_path(request.query_parameters.merge(sort: "status", direction: dir, page: nil)) , class: "group inline-flex items-center hover:underline" do %>
+                  ステータス
+                  <% if is %>
+                    <span class="ml-1 text-xs text-gray-600"><%= @direction=="asc" ? "▲" : "▼" %></span>
+                  <% end %>
+                <% end %>
+              </th>
+              <th class="px-4 py-3 text-left font-semibold">顧客</th>
+              <th class="px-4 py-3 text-right font-semibold">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @applications.each do |app| %>
+              <% overdue = app.due_on.present? && app.due_on < Date.current && app.status != "approved" %>
+              <tr class="hover:bg-gray-50 <%= overdue ? 'bg-red-50' : '' %>">
+                <td class="px-4 py-3 text-gray-900"><%= app.title %></td>
+                <td class="px-4 py-3 text-gray-700"><%= app.due_on&.strftime('%Y/%m/%d') %></td>
+                <td class="px-4 py-3">
+                  <% case app.status
+                     when "draft" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">下書き</span>
+                  <% when "submitted" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-accent-pending">提出済</span>
+                  <% when "reviewing" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-accent-warning">審査中</span>
+                  <% when "approved" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-accent-success">承認</span>
+                  <% else %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">否認</span>
+                  <% end %>
+                </td>
+                <td class="px-4 py-3 text-gray-700 whitespace-nowrap"><%= app.customer&.code %> - <%= app.customer&.name %></td>
+                <td class="px-4 py-3 text-right">
+                  <div class="inline-flex gap-2">
+                    <%= link_to "表示", app, class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+                    <%= link_to "編集", edit_application_path(app), class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+                    <%= button_to "削除", app, method: :delete, class: "rounded-md px-3 py-1.5 text-white bg-red-600 hover:bg-red-500", data: { turbo_confirm: "削除してよろしいですか？" } %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class="px-4 py-3 border-t bg-white">
+        <div class="flex justify-end">
+          <%= paginate @applications, theme: nil %>
+        </div>
+      </div>
+    <% else %>
+      <div class="px-6 py-10 text-center text-gray-500">申請が登録されていません。</div>
+    <% end %>
+  </div>
+</div>
+

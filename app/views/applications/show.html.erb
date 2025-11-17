@@ -1,0 +1,169 @@
+<% content_for :title, "申請詳細" %>
+
+<div class="w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-600 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <div class="mb-6 flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-800">申請詳細</h1>
+    <div class="flex gap-2">
+      <%= link_to "編集", edit_application_path(@application), class: "rounded-lg px-4 py-2 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+      <%= button_to "削除", @application, method: :delete, class: "rounded-lg px-4 py-2 text-white bg-red-600 hover:bg-red-500", data: { turbo_confirm: "削除してよろしいですか？" } %>
+      <%= link_to "請求を作成", new_invoice_path(customer_id: @application.customer_id, application_id: @application.id), class: "rounded-lg px-4 py-2 bg-primary-blue text-white hover:bg-blue-700" %>
+      <%= link_to "一覧へ", applications_path, class: "rounded-lg px-4 py-2 bg-primary-blue text-white hover:bg-blue-700" %>
+    </div>
+  </div>
+  <div class="mb-4 flex flex-wrap items-center gap-2">
+    <span class="inline-flex items-center rounded-full bg-blue-50 text-blue-800 px-3 py-1 text-xs font-medium">発行合計 <%= number_with_delimiter(@issued_total_yen.to_i) %> 円</span>
+    <span class="inline-flex items-center rounded-full bg-green-50 text-green-800 px-3 py-1 text-xs font-medium">入金合計 <%= number_with_delimiter(@paid_total_yen.to_i) %> 円</span>
+    <span class="inline-flex items-center rounded-full bg-yellow-50 text-yellow-800 px-3 py-1 text-xs font-medium">未回収 <%= number_with_delimiter(@outstanding_total_yen.to_i) %> 円</span>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <div class="text-sm text-gray-500">タイトル</div>
+        <div class="mt-1 text-gray-900 font-medium"><%= @application.title %></div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">顧客</div>
+        <div class="mt-1 text-gray-900">
+          <% if @application.customer %>
+            <%= link_to "#{@application.customer.code} - #{@application.customer.name}", customer_path(@application.customer), class: "text-primary-blue hover:underline" %>
+          <% else %>
+            -
+          <% end %>
+        </div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">ステータス</div>
+        <div class="mt-1">
+          <% case @application.status
+             when "draft" %>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">下書き</span>
+          <% when "submitted" %>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-accent-pending">提出済</span>
+          <% when "reviewing" %>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-accent-warning">審査中</span>
+          <% when "approved" %>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-accent-success">承認</span>
+          <% else %>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">否認</span>
+          <% end %>
+        </div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">期限</div>
+        <div class="mt-1 text-gray-900"><%= @application.due_on %></div>
+      </div>
+      <div class="md:col-span-2">
+        <div class="text-sm text-gray-500">メモ</div>
+        <div class="mt-1 text-gray-900"><%= simple_format(@application.notes) %></div>
+      </div>
+      <div class="md:col-span-2">
+        <div class="text-sm text-gray-500">添付ファイル</div>
+        <% if @application.documents.attached? %>
+          <ul class="mt-2 space-y-2">
+            <% @application.documents.each do |doc| %>
+              <li class="flex items-center justify-between gap-3 p-2 rounded border border-gray-200">
+                <div class="flex items-center gap-3 min-w-0">
+                  <% if doc.variable? %>
+                    <%= image_tag doc.representation(resize_to_limit: [64, 64]), class: "w-16 h-16 object-cover rounded border" %>
+                  <% else %>
+                    <div class="w-16 h-16 flex items-center justify-center bg-gray-100 text-gray-500 rounded border">FILE</div>
+                  <% end %>
+                  <div class="min-w-0">
+                    <div class="text-gray-900 font-medium truncate"><%= link_to doc.filename.to_s, rails_blob_path(doc, disposition: "attachment") %></div>
+                    <div class="text-xs text-gray-500"><%= number_to_human_size(doc.byte_size) %></div>
+                    <div class="mt-2">
+                      <%= form_with url: update_document_info_application_path(@application, attachment_id: doc.id), method: :patch, local: true, class: "flex items-center gap-2" do %>
+                        <% meta = (doc.blob.metadata || {}) %>
+                        <% selected_id = meta['destination_id'] %>
+                        <select name="destination_id" class="w-56 rounded border border-gray-300 px-2 py-1 text-sm">
+                          <option value="">（未選択）</option>
+                          <% labels = { 'municipality' => '市区町村', 'prefecture' => '都道府県', 'national' => '国', 'other' => 'その他' } %>
+                          <% @destinations.group_by { |d| d.kind.presence || 'other' }.each do |k, items| %>
+                            <optgroup label="<%= labels[k] || 'その他' %>">
+                              <% items.each do |d| %>
+                                <option value="<%= d.id %>" <%= 'selected' if selected_id.to_s == d.id.to_s %>><%= d.name %></option>
+                              <% end %>
+                            </optgroup>
+                          <% end %>
+                        </select>
+                        <button type="submit" class="px-2 py-1 rounded bg-gray-800 text-white text-xs hover:bg-gray-700">保存</button>
+                      <% end %>
+                      <% display_name = (doc.blob.metadata || {})['destination_name'] || (doc.blob.metadata || {})['destination'] %>
+                      <% if display_name.present? %>
+                        <div class="text-xs text-gray-600 mt-1">申請先: <%= display_name %></div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+                <div class="shrink-0">
+                  <%= link_to "削除", purge_document_application_path(@application, attachment_id: doc.id), data: { turbo_method: :delete, turbo_confirm: "この添付を削除しますか？" }, class: "px-3 py-1.5 rounded bg-red-600 text-white hover:bg-red-500 text-sm" %>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <div class="mt-1 text-gray-500">添付はありません</div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- 請求一覧セクション -->
+  <section class="mt-6 bg-white rounded-2xl shadow">
+    <div class="px-6 py-4 border-b flex items-center justify-between">
+      <h2 class="text-lg font-semibold text-gray-800">この申請の請求</h2>
+      <%= link_to "請求を作成", new_invoice_path(customer_id: @application.customer_id, application_id: @application.id), class: "rounded-lg px-4 py-2 bg-primary-blue text-white hover:bg-blue-700" %>
+    </div>
+    <% if @invoices.present? %>
+      <div class="px-6 py-4 overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-secondary-gray text-gray-700">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold">発行日</th>
+              <th class="px-4 py-3 text-right font-semibold">金額(円)</th>
+              <th class="px-4 py-3 text-left font-semibold">ステータス</th>
+              <th class="px-4 py-3 text-right font-semibold">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @invoices.each do |inv| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-gray-900 whitespace-nowrap"><%= inv.issued_on&.strftime('%Y/%m/%d') %></td>
+                <td class="px-4 py-3 text-right text-gray-900"><%= number_with_delimiter(inv.amount_yen) %></td>
+                <td class="px-4 py-3">
+                  <% case inv.status
+                     when "drafted" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">下書き</span>
+                  <% when "issued" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-accent-pending">発行</span>
+                  <% when "paid" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-accent-success">入金</span>
+                  <% else %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">取消</span>
+                  <% end %>
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <div class="inline-flex gap-2">
+                    <%= link_to "表示", invoice_path(inv), class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+                    <%= link_to "編集", edit_invoice_path(inv), class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <div class="mt-4 text-right text-gray-800">
+          合計: <span class="font-semibold"><%= number_with_delimiter(@invoices_total_yen) %> 円</span>
+        </div>
+      </div>
+    <% else %>
+      <div class="px-6 py-10 text-center text-gray-500">この申請に紐づく請求はありません。</div>
+    <% end %>
+  </section>
+</div>
+

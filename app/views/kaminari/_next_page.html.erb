@@ -1,0 +1,3 @@
+<li>
+  <%= link_to_unless current_page.last?, t('views.pagination.next').presence || 'Next', url_for(paginator.next_page), class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-200" %>
+</li>

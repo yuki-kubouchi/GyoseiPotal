@@ -1,0 +1,52 @@
+<%= form_with(model: application, class: "contents") do |form| %>
+  <% if application.errors.any? %>
+    <div id="error_explanation" class="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+      <h2 class="font-semibold mb-2"><%= pluralize(application.errors.count, "件のエラー") %> が発生しました。</h2>
+      <ul class="list-disc ml-6 text-sm">
+        <% application.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="bg-white rounded-2xl shadow p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div>
+        <label class="text-sm text-gray-700">顧客</label>
+        <%= form.collection_select :customer_id, Customer.order(:code), :id, :code, {}, class: ["mt-1 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2", {"border-gray-300 focus:ring-blue-500": application.errors[:customer_id].none?, "border-red-300 focus:ring-red-500": application.errors[:customer_id].any?}] %>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">申請タイトル</label>
+        <%= form.text_field :title, class: ["mt-1 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2", {"border-gray-300 focus:ring-blue-500": application.errors[:title].none?, "border-red-300 focus:ring-red-500": application.errors[:title].any?}] %>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">ステータス</label>
+        <%= form.select :status, Application.statuses.keys.map { |k| [ {"draft"=>"下書き","submitted"=>"提出済","reviewing"=>"審査中","approved"=>"承認","rejected"=>"否認"}[k], k ] }, {}, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">期限</label>
+        <%= form.date_field :due_on, class: ["mt-1 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2", {"border-gray-300 focus:ring-blue-500": application.errors[:due_on].none?, "border-red-300 focus:ring-red-500": application.errors[:due_on].any?}] %>
+      </div>
+      <div class="md:col-span-2">
+        <label class="text-sm text-gray-700">メモ</label>
+        <%= form.text_area :notes, rows: 4, class: ["mt-1 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2", {"border-gray-300 focus:ring-blue-500": application.errors[:notes].none?, "border-red-300 focus:ring-red-500": application.errors[:notes].any?}] %>
+      </div>
+      <div class="md:col-span-2">
+        <label class="text-sm text-gray-700">添付ファイル</label>
+        <%= form.file_field :documents, multiple: true, direct_upload: true, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2" %>
+        <% if application.persisted? && application.documents.attached? %>
+          <ul class="mt-2 text-sm text-gray-700 list-disc ml-5">
+            <% application.documents.each do |doc| %>
+              <li><%= link_to doc.filename.to_s, rails_blob_path(doc, disposition: "attachment") %></li>
+            <% end %>
+          </ul>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <%= form.submit class: "w-full sm:w-auto rounded-lg px-4 py-2 bg-primary-blue hover:bg-blue-700 text-white font-medium" %>
+    </div>
+  </div>
+<% end %>

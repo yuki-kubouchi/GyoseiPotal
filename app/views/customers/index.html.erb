@@ -1,0 +1,109 @@
+<% content_for :title, "顧客情報" %>
+
+<div class="w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-600 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+  <% if alert.present? %>
+    <p class="py-2 px-3 bg-red-50 mb-5 text-red-600 font-medium rounded-md inline-block" id="alert"><%= alert %></p>
+  <% end %>
+
+  <div class="mb-6 flex flex-col gap-4">
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-gray-800">顧客情報</h1>
+      <div class="flex items-center gap-2">
+        <%= link_to "CSVエクスポート", customers_path(request.query_parameters.merge(format: :csv, page: nil)), class: "inline-flex items-center rounded-lg px-3 py-2 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+        <%= link_to "新規顧客", new_customer_path, class: "inline-flex items-center rounded-lg px-4 py-2 bg-primary-blue text-white hover:bg-blue-700 transition shadow" %>
+      </div>
+    </div>
+    <%= form_with url: customers_path, method: :get, local: true, class: "grid grid-cols-1 md:grid-cols-3 gap-3" do %>
+      <div>
+        <label class="block text-sm text-gray-600">検索（コード・氏名）</label>
+        <input type="text" name="q" value="<%= @q %>" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例: CUST001 / 田中" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600">ステータス</label>
+        <select name="status" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">すべて</option>
+          <option value="prospect" <%= "selected" if @status=="prospect" %>>見込み</option>
+          <option value="active" <%= "selected" if @status=="active" %>>稼働中</option>
+          <option value="inactive" <%= "selected" if @status=="inactive" %>>非アクティブ</option>
+        </select>
+      </div>
+      <div class="flex items-end gap-2">
+        <input type="hidden" name="sort" value="<%= @sort %>">
+        <input type="hidden" name="direction" value="<%= @direction %>">
+        <button type="submit" class="rounded-lg px-4 py-2 bg-gray-800 text-white hover:bg-gray-700">検索</button>
+        <%= link_to "リセット", customers_path, class: "rounded-lg px-4 py-2 bg-gray-100 text-gray-800 hover:bg-gray-50" %>
+      </div>
+    <% end %>
+    <%= form_with url: import_customers_path, method: :post, html: { multipart: true }, local: true, class: "flex items-center gap-2" do %>
+      <label class="text-sm text-gray-600">CSVインポート</label>
+      <input type="file" name="file" accept=".csv" class="block rounded-lg border border-gray-300 px-3 py-2" />
+      <button type="submit" class="rounded-lg px-4 py-2 bg-gray-800 text-white hover:bg-gray-700">取り込み</button>
+    <% end %>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <% if @customers.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-secondary-gray text-gray-700">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold">
+                <% dir = (@sort=="code" && @direction=="asc") ? "desc" : "asc" %>
+                <%= link_to "コード", customers_path(request.query_parameters.merge(sort: "code", direction: dir, page: nil)), class: "hover:underline" %>
+              </th>
+              <th class="px-4 py-3 text-left font-semibold">
+                <% dir = (@sort=="name" && @direction=="asc") ? "desc" : "asc" %>
+                <%= link_to "顧客名", customers_path(request.query_parameters.merge(sort: "name", direction: dir, page: nil)), class: "hover:underline" %>
+              </th>
+              <th class="px-4 py-3 text-left font-semibold">会社名</th>
+              <th class="px-4 py-3 text-left font-semibold">
+                <% dir = (@sort=="status" && @direction=="asc") ? "desc" : "asc" %>
+                <%= link_to "ステータス", customers_path(request.query_parameters.merge(sort: "status", direction: dir, page: nil)), class: "hover:underline" %>
+              </th>
+              <th class="px-4 py-3 text-left font-semibold">メール</th>
+              <th class="px-4 py-3 text-right font-semibold">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @customers.each do |customer| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap"><%= customer.code %></td>
+                <td class="px-4 py-3 text-gray-800 whitespace-nowrap"><%= customer.name %></td>
+                <td class="px-4 py-3 text-gray-700 whitespace-nowrap"><%= customer.company_name %></td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <%# status badge %>
+                  <% case customer.status
+                     when "prospect" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-accent-warning">見込み</span>
+                  <% when "active" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-accent-success">稼働中</span>
+                  <% else %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">非アクティブ</span>
+                  <% end %>
+                </td>
+                <td class="px-4 py-3 text-gray-700"><%= customer.email %></td>
+                <td class="px-4 py-3 text-right">
+                  <div class="inline-flex gap-2">
+                    <%= link_to "表示", customer, class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+                    <%= link_to "編集", edit_customer_path(customer), class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
+                    <%= button_to "削除", customer, method: :delete, class: "rounded-md px-3 py-1.5 text-white bg-red-600 hover:bg-red-500", data: { turbo_confirm: "削除してよろしいですか？" } %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class="px-4 py-3 border-t bg-white">
+        <div class="flex justify-end">
+          <%= paginate @customers, theme: nil %>
+        </div>
+      </div>
+    <% else %>
+      <div class="px-6 py-10 text-center text-gray-500">顧客が登録されていません。</div>
+    <% end %>
+  </div>
+</div>
