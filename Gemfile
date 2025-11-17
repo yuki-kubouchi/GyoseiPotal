@@ -2,7 +2,6 @@ source "https://rubygems.org"
 
 ruby "3.2.0"
 
-# Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.1.0"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
@@ -12,7 +11,14 @@ gem "sprockets-rails"
 gem "tailwindcss-rails"
 
 # Use mysql as the database for Active Record
-gem "mysql2", "~> 0.5"
+# FIX: Local MySQLを使用するため、コメントアウトを解除します
+gem "mysql2", "~> 0.5" 
+
+# PostgreSQLのgemを追加
+group :production do
+  # FIX: デプロイ環境で使用するPostgreSQLアダプタをバンドルに含めます
+  gem 'pg', '~> 1.5'
+end
 
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
