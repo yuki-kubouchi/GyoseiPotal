@@ -89,7 +89,7 @@ open coverage/index.html
 
 ### 環境変数
 - `DATABASE_URL`: PostgreSQL接続URL
-- `RAILS_MASTER_KEY`: `config/master.key`の内容
+- `RAILS_MASTER_KEY`: 本番環境用の`config/credentials.yml.enc`を復号化するためのキー（非公開）
 - `RAILS_SERVE_STATIC_FILES`: `true`に設定
 
 ## 👥 コントリビューション
