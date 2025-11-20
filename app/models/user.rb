@@ -1,6 +1,7 @@
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+  has_secure_password
+
+  validates :email, presence: true, uniqueness: true
+  validates :email, format: { with: /\A[^@\s]+@[^@\s]+\z/, message: "は有効なメールアドレスを入力してください" }
+  validates :password_digest, presence: true
 end

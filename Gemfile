@@ -15,6 +15,9 @@ group :development, :test do
   gem 'sqlite3', '~> 1.4'
 end
 
+# パスワードのハッシュ化に必要
+gem 'bcrypt', '~> 3.1.7'
+
 # Use PostgreSQL in production
 group :production do
   gem 'pg', '~> 1.5'
