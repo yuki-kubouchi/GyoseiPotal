@@ -1,0 +1,23 @@
+default: &default
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+
+# SQLite3 configuration for development and test environments
+development:
+  <<: *default
+  adapter: sqlite3
+  database: db/development.sqlite3
+
+test:
+  <<: *default
+  adapter: sqlite3
+  database: db/test.sqlite3
+
+production:
+  <<: *default
+  url: <%= ENV['DATABASE_URL'] if ENV['DATABASE_URL'].present? %>
+  database: <%= ENV['RENDER_DATABASE_NAME'] || 'gyosei_potal_production' %>
+  username: <%= ENV['RENDER_DATABASE_USERNAME'] || 'gyosei_potal' %>
+  password: <%= ENV['RENDER_DATABASE_PASSWORD'] || ENV['GYOSEI_POTAL_DATABASE_PASSWORD'] %>
+  host: <%= ENV['RENDER_DATABASE_HOST'] || 'localhost' %>
+  port: <%= ENV['RENDER_DATABASE_PORT'] if ENV['RENDER_DATABASE_PORT'].present? %>

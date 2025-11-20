@@ -11,7 +11,7 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.1].define(version: 2025_10_25_064619) do
-  create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
     t.bigint "record_id", null: false
@@ -21,7 +21,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_25_064619) do
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
-  create_table "active_storage_blobs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "active_storage_blobs", force: :cascade do |t|
     t.string "key", null: false
     t.string "filename", null: false
     t.string "content_type"
@@ -33,14 +33,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_25_064619) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "active_storage_variant_records", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "active_storage_variant_records", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "applications", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "customer_id", null: false
+  create_table "applications", force: :cascade do |t|
+    t.integer "customer_id", null: false
     t.string "title"
     t.integer "status"
     t.date "due_on"
@@ -50,7 +50,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_25_064619) do
     t.index ["customer_id"], name: "index_applications_on_customer_id"
   end
 
-  create_table "customers", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "customers", force: :cascade do |t|
     t.string "code", null: false
     t.string "name", null: false
     t.string "company_name"
@@ -67,7 +67,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_25_064619) do
     t.index ["status"], name: "index_customers_on_status"
   end
 
-  create_table "destinations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "destinations", force: :cascade do |t|
     t.string "name"
     t.text "notes"
     t.datetime "created_at", null: false
@@ -76,9 +76,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_25_064619) do
     t.index ["name"], name: "index_destinations_on_name", unique: true
   end
 
-  create_table "invoices", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "customer_id", null: false
-    t.bigint "application_id", null: false
+  create_table "invoices", force: :cascade do |t|
+    t.integer "customer_id", null: false
+    t.integer "application_id", null: false
     t.integer "amount_yen"
     t.date "issued_on"
     t.integer "status"

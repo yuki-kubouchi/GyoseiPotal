@@ -10,13 +10,13 @@ gem "sprockets-rails"
 # Tailwind CSS for Rails
 gem "tailwindcss-rails"
 
-# Use mysql as the database for Active Record
-# FIX: Local MySQLを使用するため、コメントアウトを解除します
-gem "mysql2", "~> 0.5" 
+# Use sqlite3 as the database for Active Record in development and test
+group :development, :test do
+  gem 'sqlite3', '~> 1.4'
+end
 
-# PostgreSQLのgemを追加
+# Use PostgreSQL in production
 group :production do
-  # FIX: デプロイ環境で使用するPostgreSQLアダプタをバンドルに含めます
   gem 'pg', '~> 1.5'
 end
 
