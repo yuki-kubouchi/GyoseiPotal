@@ -38,13 +38,20 @@
     </div>
 
     <!-- overlay (mobile) -->
-    <div id="overlay" class="fixed inset-0 bg-black opacity-50 z-30 md:hidden hidden" onclick="toggleSidebar()"></div>
+    <div id="overlay" class="fixed inset-0 bg-black opacity-50 z-10 md:hidden hidden" onclick="toggleSidebar()"></div>
 
     <!-- sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 w-64 bg-primary-blue text-white shadow-xl transition-transform duration-300 ease-in-out z-40 md:relative flex flex-col">
-      <div class="p-6 border-b border-blue-800">
-        <h1 class="text-2xl font-extrabold tracking-wider">行政書士 Portal</h1>
-        <p class="text-sm opacity-75 mt-1">申請・日程管理</p>
+    <aside id="sidebar" class="fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 w-64 bg-primary-blue text-white shadow-xl transition-transform duration-300 ease-in-out z-20 md:relative flex flex-col">
+      <div class="p-6 border-b border-blue-800 flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-extrabold tracking-wider">行政書士 Portal</h1>
+          <p class="text-sm opacity-75 mt-1">申請・日程管理</p>
+        </div>
+        <button onclick="toggleSidebar()" class="md:hidden text-white">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
       </div>
       <nav class="flex-grow p-4 space-y-2 custom-scrollbar overflow-y-auto">
         <a href="<%= root_path %>" class="flex items-center p-3 rounded-xl hover:bg-blue-700/50 transition duration-150" onclick="if(window.innerWidth < 768) toggleSidebar()">
