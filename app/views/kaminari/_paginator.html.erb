@@ -1,18 +1,20 @@
 <%# Tailwind-styled paginator wrapper %>
-<%= paginator.render do %>
-  <nav class="flex items-center justify-end" role="navigation" aria-label="Pagination">
-    <ul class="inline-flex items-center gap-1">
+<nav class="mt-4">
+  <ul class="flex justify-center space-x-2">
+    <%= paginator.render do -%>
       <%= first_page_tag unless current_page.first? %>
       <%= prev_page_tag unless current_page.first? %>
-      <% each_page do |page| %>
-        <% if page.left_outer? || page.right_outer? || page.inside_window? %>
+      <% each_page do |page| -%>
+        <% if page.display_tag? -%>
           <%= page_tag page %>
-        <% elsif !page.was_truncated? %>
+        <% elsif !page.was_truncated? -%>
           <%= gap_tag %>
-        <% end %>
+        <% end -%>
+      <% end -%>
+      <% unless current_page.out_of_range? %>
+        <%= next_page_tag unless current_page.last? %>
+        <%= last_page_tag unless current_page.last? %>
       <% end %>
-      <%= next_page_tag unless current_page.last? %>
-      <%= last_page_tag unless current_page.last? %>
-    </ul>
-  </nav>
-<% end %>
+    <% end -%>
+  </ul>
+</nav>

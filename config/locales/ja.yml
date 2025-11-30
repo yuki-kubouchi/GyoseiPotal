@@ -1,0 +1,10 @@
+ja:
+  enums:
+    invoice:
+      status:
+        draft: "下書き"
+        sent: "送付済み"
+        paid: "入金済み"
+        overdue: "期限切れ"
+        cancelled: "キャンセル"
+        

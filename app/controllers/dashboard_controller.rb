@@ -26,9 +26,10 @@ class DashboardController < ApplicationController
     # Invoice total (this month): sum issued or paid invoices
     if defined?(Invoice)
       month_range = Time.current.all_month
-      @invoice_total_yen = Invoice.where(issued_on: month_range)
-                                  .where(status: [Invoice.statuses[:issued], Invoice.statuses[:paid]])
-                                  .sum(:amount_yen)
+      @invoice_total_yen = Invoice.joins(:invoice_items)
+                                 .where(issue_date: month_range)
+                                 .where(status: [Invoice.statuses[:sent], Invoice.statuses[:paid]])
+                                 .sum('invoice_items.amount')
     else
       @invoice_total_yen = 0
     end

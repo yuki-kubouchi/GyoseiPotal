@@ -133,18 +133,20 @@
           <tbody class="divide-y divide-gray-100">
             <% @invoices.each do |inv| %>
               <tr class="hover:bg-gray-50">
-                <td class="px-4 py-3 text-gray-900 whitespace-nowrap"><%= inv.issued_on&.strftime('%Y/%m/%d') %></td>
-                <td class="px-4 py-3 text-right text-gray-900"><%= number_with_delimiter(inv.amount_yen) %></td>
+                <td class="px-4 py-3 text-gray-900 whitespace-nowrap"><%= inv.issue_date&.strftime('%Y/%m/%d') %></td>
+                <td class="px-4 py-3 text-right text-gray-900"><%= number_with_delimiter(inv.total) %></td>
                 <td class="px-4 py-3">
                   <% case inv.status
-                     when "drafted" %>
+                     when "draft" %>
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">下書き</span>
-                  <% when "issued" %>
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-accent-pending">発行</span>
+                  <% when "sent" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-accent-pending">送付済</span>
                   <% when "paid" %>
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-accent-success">入金</span>
-                  <% else %>
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">取消</span>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-accent-success">入金済</span>
+                  <% when "overdue" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-accent-warning">期限切れ</span>
+                  <% when "cancelled" %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">キャンセル</span>
                   <% end %>
                 </td>
                 <td class="px-4 py-3 text-right">

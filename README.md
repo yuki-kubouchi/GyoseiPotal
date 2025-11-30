@@ -1,6 +1,7 @@
 # 行政ポータル (Gyosei Potal) - 業務管理システム
 
 [![Ruby on Rails](https://img.shields.io/badge/Ruby_on_Rails-CC0000?style=for-the-badge&logo=ruby-on-rails&logoColor=white)](https://rubyonrails.org/)
+[![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Ruby](https://img.shields.io/badge/Ruby-3.2.0-CC342D?style=for-the-badge&logo=ruby&logoColor=white)](https://www.ruby-lang.org/)
@@ -259,7 +260,7 @@ bin/dev
 - **言語**: Ruby 3.2.0
 - **データベース**: 
   - 本番環境: PostgreSQL
-  - 開発環境: MySQL 8.0+
+  - 開発/テスト環境: SQLite3
 - **Webサーバー**: Puma
 
 ### フロントエンド
@@ -310,7 +311,7 @@ bin/dev
 ## 🧪 テストの実行
 ```bash
 # テストの実行
-bundle exec rspec
+bin/rails test
 
 # カバレッジの確認（simplecovを使用）
 open coverage/index.html

@@ -101,14 +101,13 @@ class ApplicationsController < ApplicationController
 
   # GET /applications/1 or /applications/1.json
   def show
-    @invoices = @application.invoices.includes(:customer).order(issued_on: :desc, id: :desc)
-    @invoices_total_yen = @invoices.sum(:amount_yen)
-    @issued_total_yen = @invoices.where(status: Invoice.statuses[:issued]).sum(:amount_yen) if defined?(Invoice)
-    @paid_total_yen = @invoices.where(status: Invoice.statuses[:paid]).sum(:amount_yen) if defined?(Invoice)
-    @outstanding_total_yen = (@issued_total_yen.to_i - @paid_total_yen.to_i)
+    @invoices = @application.invoices.includes(:customer).order(issue_date: :desc, id: :desc)
+    @invoices_total_yen = @invoices.sum { |inv| inv.total.to_i }
+    @issued_total_yen = @invoices.select { |inv| inv.status == 'sent' }.sum { |inv| inv.total.to_i }
+    @paid_total_yen = @invoices.select { |inv| inv.status == 'paid' }.sum { |inv| inv.total.to_i }
+    @outstanding_total_yen = @issued_total_yen - @paid_total_yen
     @destinations = Destination.order(:name)
   end
-
   # GET /applications/new
   def new
     @application = Application.new

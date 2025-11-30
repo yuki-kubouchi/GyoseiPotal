@@ -1,6 +1,12 @@
 Rails.application.routes.draw do
   resources :schedules, only: [:index]
-  resources :invoices
+  
+  resources :invoices do
+    member do
+      get 'download', to: 'invoices#download', as: :download, defaults: { format: 'pdf' }
+    end
+  end
+  
   resources :applications do
     collection do
       post :import
@@ -16,7 +22,6 @@ Rails.application.routes.draw do
       post :import
     end
   end
-
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

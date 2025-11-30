@@ -15,15 +15,15 @@
 
   <%= form_with url: invoices_path, method: :get, local: true, class: "grid grid-cols-1 md:grid-cols-6 gap-3 mb-6" do %>
     <div>
-      <label class="block text-sm text-gray-600">検索（顧客/申請）</label>
-      <input type="text" name="q" value="<%= @q %>" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例: 顧客名/申請タイトル" />
+      <label class="block text-sm text-gray-600">検索（請求書番号/顧客/案件）</label>
+      <input type="text" name="q" value="<%= @q %>" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例: INV-20231126-XXXX" />
     </div>
     <div>
       <label class="block text-sm text-gray-600">ステータス</label>
       <select name="status" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
         <option value="">すべて</option>
         <% Invoice.statuses.keys.each do |k| %>
-          <% label = {"drafted"=>"下書き","issued"=>"発行","paid"=>"入金","canceled"=>"取消"}[k] %>
+          <% label = {"draft"=>"下書き","sent"=>"送付済み","paid"=>"入金済み","overdue"=>"期限切れ","cancelled"=>"キャンセル"}[k] %>
           <option value="<%= k %>" <%= "selected" if @status==k %>><%= label %></option>
         <% end %>
       </select>
@@ -32,8 +32,8 @@
       <label class="block text-sm text-gray-600">顧客</label>
       <select name="customer_id" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2">
         <option value="">すべて</option>
-        <% Customer.order(:code).each do |c| %>
-          <option value="<%= c.id %>" <%= "selected" if @customer_id==c.id.to_s %>><%= c.code %> - <%= c.name %></option>
+        <% Customer.order(:name).each do |c| %>
+          <option value="<%= c.id %>" <%= "selected" if @customer_id==c.id.to_s %>><%= c.name %></option>
         <% end %>
       </select>
     </div>
@@ -45,88 +45,71 @@
       <label class="block text-sm text-gray-600">発行日（終了）</label>
       <input type="date" name="end_date" value="<%= @end_date&.strftime('%Y-%m-%d') %>" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" />
     </div>
-    <div class="flex items-end gap-2">
-      <button type="submit" class="rounded-lg px-4 py-2 bg-gray-800 text-white hover:bg-gray-700">検索</button>
-      <%= link_to "リセット", invoices_path, class: "rounded-lg px-4 py-2 bg-gray-100 text-gray-800 hover:bg-gray-50" %>
+    <div class="flex items-end">
+      <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">検索</button>
     </div>
   <% end %>
 
-  <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-    <% if @invoices.any? %>
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm">
-          <thead class="bg-secondary-gray text-gray-700 sticky top-0 z-10">
-            <tr>
-              <th class="px-4 py-3 text-left font-semibold">
-                <% is = (@sort=="issued_on"); dir = (is && @direction=="asc") ? "desc" : "asc" %>
-                <%= link_to invoices_path(request.query_parameters.merge(sort: "issued_on", direction: dir, page: nil)), class: "group inline-flex items-center hover:underline" do %>
-                  発行日
-                  <% if is %>
-                    <span class="ml-1 text-xs text-gray-600"><%= @direction=="asc" ? "▲" : "▼" %></span>
-                  <% end %>
+  <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">請求書番号</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">顧客名</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">案件名</th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">金額</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">発行日</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">支払期日</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ステータス</th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">アクション</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @invoices.each do |invoice| %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= invoice.invoice_number %></td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= invoice.customer.name %></td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= invoice.application&.title %></td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right"><%= number_to_currency(invoice.total, unit: "¥", format: "%u%n", precision: 0) %></td>
+            <td class="px-4 py-3 text-gray-900 whitespace-nowrap"><%= invoice.issue_date&.strftime('%Y/%m/%d') %></td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= invoice.due_date&.strftime('%Y/%m/%d') %></td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% if invoice.status.present? %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= status_badge_class(invoice.status) %>">
+                  <%= t("enums.invoice.status.#{invoice.status}", default: invoice.status) %>
+                </span>
+              <% else %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                  未設定
+                </span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <div class="flex justify-end space-x-2">
+                <%= link_to invoice_path(invoice, format: :pdf), target: '_blank', class: 'text-blue-600 hover:text-blue-900', title: 'PDF表示' do %>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                  </svg>
                 <% end %>
-              </th>
-              <th class="px-4 py-3 text-left font-semibold">顧客</th>
-              <th class="px-4 py-3 text-left font-semibold">申請</th>
-              <th class="px-4 py-3 text-right font-semibold">
-                <% is = (@sort=="amount_yen"); dir = (is && @direction=="asc") ? "desc" : "asc" %>
-                <%= link_to invoices_path(request.query_parameters.merge(sort: "amount_yen", direction: dir, page: nil)), class: "group inline-flex items-center hover:underline" do %>
-                  金額(円)
-                  <% if is %>
-                    <span class="ml-1 text-xs text-gray-600"><%= @direction=="asc" ? "▲" : "▼" %></span>
-                  <% end %>
+                <%= link_to edit_invoice_path(invoice), class: 'text-indigo-600 hover:text-indigo-900', title: '編集' do %>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
                 <% end %>
-              </th>
-              <th class="px-4 py-3 text-left font-semibold">
-                <% is = (@sort=="status"); dir = (is && @direction=="asc") ? "desc" : "asc" %>
-                <%= link_to invoices_path(request.query_parameters.merge(sort: "status", direction: dir, page: nil)), class: "group inline-flex items-center hover:underline" do %>
-                  ステータス
-                  <% if is %>
-                    <span class="ml-1 text-xs text-gray-600"><%= @direction=="asc" ? "▲" : "▼" %></span>
-                  <% end %>
+                <%= link_to invoice_path(invoice), method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'text-red-600 hover:text-red-900', title: '削除' do %>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
                 <% end %>
-              </th>
-              <th class="px-4 py-3 text-right font-semibold">操作</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <% @invoices.each do |inv| %>
-              <tr class="hover:bg-gray-50">
-                <td class="px-4 py-3 text-gray-900 whitespace-nowrap"><%= inv.issued_on&.strftime('%Y/%m/%d') %></td>
-                <td class="px-4 py-3 text-gray-700 whitespace-nowrap"><%= inv.customer&.code %> - <%= inv.customer&.name %></td>
-                <td class="px-4 py-3 text-gray-700"><%= inv.application&.title %></td>
-                <td class="px-4 py-3 text-right text-gray-900"><%= number_with_delimiter(inv.amount_yen) %></td>
-                <td class="px-4 py-3">
-                  <% case inv.status
-                     when "drafted" %>
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">下書き</span>
-                  <% when "issued" %>
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-accent-pending">発行</span>
-                  <% when "paid" %>
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-accent-success">入金</span>
-                  <% else %>
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">取消</span>
-                  <% end %>
-                </td>
-                <td class="px-4 py-3 text-right">
-                  <div class="inline-flex gap-2">
-                    <%= link_to "表示", inv, class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
-                    <%= link_to "編集", edit_invoice_path(inv), class: "rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
-                    <%= button_to "削除", inv, method: :delete, class: "rounded-md px-3 py-1.5 text-white bg-red-600 hover:bg-red-500", data: { turbo_confirm: "削除してよろしいですか？" } %>
-                  </div>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-      <div class="px-4 py-3 border-t bg-white">
-        <div class="flex justify-end">
-          <%= paginate @invoices, theme: nil %>
-        </div>
-      </div>
-    <% else %>
-      <div class="px-6 py-10 text-center text-gray-500">請求が登録されていません。</div>
-    <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-4">
+    <%= paginate @invoices, views_prefix: nil %>
   </div>
 </div>

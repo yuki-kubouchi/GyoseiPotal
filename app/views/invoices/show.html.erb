@@ -1,64 +1,108 @@
-<% content_for :title, "請求詳細" %>
+<% content_for :title, "請求書詳細" %>
 
 <div class="w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-600 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
-  <% end %>
-
-  <div class="mb-6 flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-gray-800">請求詳細</h1>
-    <div class="flex gap-2">
-      <%= link_to "編集", edit_invoice_path(@invoice), class: "rounded-lg px-4 py-2 bg-gray-100 hover:bg-gray-50 text-gray-800" %>
-      <%= button_to "削除", @invoice, method: :delete, class: "rounded-lg px-4 py-2 text-white bg-red-600 hover:bg-red-500", data: { turbo_confirm: "削除してよろしいですか？" } %>
-      <%= link_to "一覧へ", invoices_path, class: "rounded-lg px-4 py-2 bg-primary-blue text-white hover:bg-blue-700" %>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">請求書詳細</h1>
+    <div class="flex space-x-2">
+      <%= link_to 'PDFで表示', download_invoice_path(@invoice, format: :pdf), class: 'inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500' %>
+      <%= link_to '編集', edit_invoice_path(@invoice), class: 'inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500' %>
+      <%= link_to '一覧に戻る', invoices_path, class: 'inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500' %>
+    </div>
+  </div>
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">
+        請求書 #<%= @invoice.invoice_number %>
+      </h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">
+        請求書の詳細情報
+      </p>
+    </div>
+    <div class="border-t border-gray-200">
+      <dl>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">ステータス</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= status_badge_class(@invoice.status) %>">
+              <%= t("enums.invoice.status.#{@invoice.status}") %>
+            </span>
+          </dd>
+        </div>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <div class="text-sm text-gray-500">発行日</div>
+          <div class="mt-1 text-gray-900"><%= @invoice.issue_date.strftime('%Y年%m月%d日') %></div>
+        </div>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">支払期日</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @invoice.due_date.strftime('%Y年%m月%d日') %></dd>
+        </div>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">顧客名</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @invoice.customer.name %></dd>
+        </div>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">関連案件</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @invoice.application&.title %></dd>
+        </div>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">消費税率</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= number_to_percentage(@invoice.tax_rate, precision: 1) %></dd>
+        </div>
+        <% if @invoice.notes.present? %>
+          <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">備考</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 whitespace-pre-line"><%= @invoice.notes %></dd>
+          </div>
+        <% end %>
+      </dl>
     </div>
   </div>
 
-  <div class="bg-white rounded-2xl shadow p-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <div class="text-sm text-gray-500">顧客</div>
-        <div class="mt-1 text-gray-900">
-          <% if @invoice.customer %>
-            <%= link_to "#{@invoice.customer.code} - #{@invoice.customer.name}", customer_path(@invoice.customer), class: "text-primary-blue hover:underline" %>
-          <% else %>
-            -
-          <% end %>
-        </div>
-      </div>
-      <div>
-        <div class="text-sm text-gray-500">申請</div>
-        <div class="mt-1 text-gray-900">
-          <% if @invoice.application %>
-            <%= link_to @invoice.application.title, application_path(@invoice.application), class: "text-primary-blue hover:underline" %>
-          <% else %>
-            -
-          <% end %>
-        </div>
-      </div>
-      <div>
-        <div class="text-sm text-gray-500">金額(円)</div>
-        <div class="mt-1 text-gray-900 font-medium"><%= number_with_delimiter(@invoice.amount_yen) %></div>
-      </div>
-      <div>
-        <div class="text-sm text-gray-500">発行日</div>
-        <div class="mt-1 text-gray-900"><%= @invoice.issued_on %></div>
-      </div>
-      <div>
-        <div class="text-sm text-gray-500">ステータス</div>
-        <div class="mt-1">
-          <% case @invoice.status
-             when "drafted" %>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">下書き</span>
-          <% when "issued" %>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-accent-pending">発行</span>
-          <% when "paid" %>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-accent-success">入金</span>
-          <% else %>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">取消</span>
-          <% end %>
-        </div>
-      </div>
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">
+        明細
+      </h3>
     </div>
+    <div class="border-t border-gray-200">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">品名</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">数量</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">単価</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">金額</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @invoice.invoice_items.each do |item| %>
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= item.description %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right"><%= item.quantity %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right"><%= number_to_currency(item.unit_price, unit: "¥", format: "%u%n", precision: 0) %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium"><%= number_to_currency(item.amount, unit: "¥", format: "%u%n", precision: 0) %></td>
+            </tr>
+          <% end %>
+          <tr class="bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" colspan="3">小計</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium"><%= number_to_currency(@invoice.subtotal, unit: "¥", format: "%u%n", precision: 0) %></td>
+          </tr>
+          <tr class="bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" colspan="3">消費税（<%= number_to_percentage(@invoice.tax_rate, precision: 1) %>）</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium"><%= number_to_currency(@invoice.tax_amount, unit: "¥", format: "%u%n", precision: 0) %></td>
+          </tr>
+          <tr class="bg-gray-100">
+            <td class="px-6 py-4 whitespace-nowrap text-lg font-bold text-gray-900" colspan="3">合計金額</td>
+            <td class="px-6 py-4 whitespace-nowrap text-lg font-bold text-gray-900 text-right"><%= number_to_currency(@invoice.total, unit: "¥", format: "%u%n", precision: 0) %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="flex justify-end space-x-3">
+    <%= link_to '印刷', 'javascript:window.print()', class: 'inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500' %>
+    <%= link_to '編集', edit_invoice_path(@invoice), class: 'inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500' %>
+    <%= link_to '一覧に戻る', invoices_path, class: 'inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500' %>
   </div>
 </div>

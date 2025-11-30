@@ -1,40 +1,140 @@
-<%= form_with(model: invoice, class: "contents") do |form| %>
+<%= form_with(model: invoice, local: true, html: { class: "space-y-6", data: { controller: 'nested-form' } }) do |form| %>
   <% if invoice.errors.any? %>
-    <div class="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
-      <h2 class="font-semibold mb-2"><%= pluralize(invoice.errors.count, "件のエラー") %> が発生しました。</h2>
-      <ul class="list-disc ml-6 text-sm">
-        <% invoice.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(invoice.errors.count, "つのエラー") %> が発生しました:
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% invoice.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   <% end %>
 
-  <div class="bg-white rounded-2xl shadow p-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-      <div>
-        <label class="text-sm text-gray-700">顧客</label>
-        <%= form.collection_select :customer_id, Customer.order(:code), :id, :code, {}, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2" %>
+  <div class="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
+    <div class="md:grid md:grid-cols-3 md:gap-6">
+      <div class="md:col-span-1">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">基本情報</h3>
+        <p class="mt-1 text-sm text-gray-500">請求書の基本情報を入力してください。</p>
       </div>
-      <div>
-        <label class="text-sm text-gray-700">申請</label>
-        <%= form.collection_select :application_id, Application.order(:id), :id, :title, {}, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2" %>
+      <div class="mt-5 md:mt-0 md:col-span-2">
+        <div class="grid grid-cols-6 gap-6">
+          <div class="col-span-6 sm:col-span-3">
+            <%= form.label :customer_id, '顧客', class: "block text-sm font-medium text-gray-700" %>
+            <%= form.collection_select :customer_id, 
+              Customer.order(:name), 
+              :id, 
+              :name, 
+              { prompt: "選択してください" }, 
+              { class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" } %>
+          </div>
+
+          <div class="col-span-6 sm:col-span-3">
+            <%= form.label :application_id, '関連案件', class: "block text-sm font-medium text-gray-700" %>
+            <%= form.grouped_collection_select :application_id, 
+              Customer.includes(:applications), 
+              :applications, 
+              :name, 
+              :id, 
+              :title, 
+              { include_blank: "選択してください" }, 
+              { class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" } %>
+          </div>
+
+          <div class="col-span-6 sm:col-span-2">
+            <%= form.label :invoice_number, '請求書番号', class: "block text-sm font-medium text-gray-700" %>
+            <%= form.text_field :invoice_number, 
+              class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm",
+              placeholder: "自動採番されます" %>
+          </div>
+
+          <div class="col-span-6 sm:col-span-2">
+            <%= form.label :issue_date, '発行日', class: "block text-sm font-medium text-gray-700" %>
+            <%= form.date_field :issue_date, 
+              value: invoice.issue_date || Date.current.strftime('%Y-%m-%d'),
+              class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+          </div>
+
+          <div class="col-span-6 sm:col-span-2">
+            <%= form.label :due_date, '支払期日', class: "block text-sm font-medium text-gray-700" %>
+            <%= form.date_field :due_date, 
+              value: invoice.due_date || 30.days.from_now.strftime('%Y-%m-%d'),
+              class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+          </div>
+
+          <div class="col-span-6 sm:col-span-2">
+            <%= form.label :status, 'ステータス', class: "block text-sm font-medium text-gray-700" %>
+            <%= form.select :status, 
+              Invoice.statuses.keys.map { |s| [t("activerecord.attributes.invoice.statuses.#{s}", default: s.humanize), s] }, 
+              { selected: invoice.status || 'draft' }, 
+              { class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" } %>
+          </div>
+
+          <div class="col-span-6 sm:col-span-2">
+            <%= form.label :tax_rate, '消費税率 (%)', class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1 relative rounded-md shadow-sm">
+              <%= form.number_field :tax_rate, 
+                step: '0.1', 
+                value: invoice.tax_rate || 10.0,
+                class: "focus:ring-blue-500 focus:border-blue-500 block w-full pr-10 sm:text-sm border-gray-300 rounded-md" %>
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div>
-        <label class="text-sm text-gray-700">金額(円)</label>
-        <%= form.number_field :amount_yen, min: 0, step: 1, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2" %>
-      </div>
-      <div>
-        <label class="text-sm text-gray-700">発行日</label>
-        <%= form.date_field :issued_on, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2" %>
-      </div>
-      <div>
-        <label class="text-sm text-gray-700">ステータス</label>
-        <%= form.select :status, Invoice.statuses.keys.map { |k| [ {"drafted"=>"下書き","issued"=>"発行","paid"=>"入金","canceled"=>"取消"}[k], k ] }, {}, class: "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2" %>
-      </div>
-    </div>
-    <div class="mt-6">
-      <%= form.submit class: "w-full sm:w-auto rounded-lg px-4 py-2 bg-primary-blue hover:bg-blue-700 text-white font-medium" %>
     </div>
   </div>
+
+  <div class="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6 mt-6">
+    <div class="md:grid md:grid-cols-3 md:gap-6">
+      <div class="md:col-span-1">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">明細</h3>
+        <p class="mt-1 text-sm text-gray-500">請求明細を追加してください。</p>
+      </div>
+      <div class="mt-5 md:mt-0 md:col-span-2">
+        <div id="invoice_items">
+          <%= form.fields_for :invoice_items do |item| %>
+            <%= render 'invoice_item_fields', f: item %>
+          <% end %>
+          <div class="links mt-4">
+            <%= link_to_add_association '明細を追加', form, :invoice_items, 
+                                      class: 'inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6 mt-6">
+    <div class="md:grid md:grid-cols-3 md:gap-6">
+      <div class="md:col-span-1">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">備考</h3>
+        <p class="mt-1 text-sm text-gray-500">請求書に表示する備考があれば入力してください。</p>
+      </div>
+      <div class="mt-5 md:mt-0 md:col-span-2">
+        <%= form.text_area :notes, rows: 3, class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end mt-6">
+    <%= link_to 'キャンセル', invoices_path, class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+    <%= form.submit '保存', class: "ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+  </div>
 <% end %>
+
+<%= javascript_import_module_tag "invoices" %>

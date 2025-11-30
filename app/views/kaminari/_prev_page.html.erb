@@ -1,3 +1,9 @@
 <li>
-  <%= link_to_unless current_page.first?, t('views.pagination.previous').presence || 'Prev', url_for(paginator.prev_page), class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-200" %>
+  <%= link_to_unless current_page.first?, 
+      t('views.pagination.previous').html_safe, 
+      url_for(paginator.prev_page), 
+      rel: 'prev', 
+      remote: remote, 
+      class: 'px-3 py-1 border rounded hover:bg-gray-100'
+  %>
 </li>
