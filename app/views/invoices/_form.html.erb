@@ -32,13 +32,13 @@
       <div class="mt-5 md:mt-0 md:col-span-2">
         <div class="grid grid-cols-6 gap-6">
           <div class="col-span-6 sm:col-span-3">
-            <%= form.label :customer_id, '顧客', class: "block text-sm font-medium text-gray-700" %>
+            <%= form.label :customer_id, '顧客 <span class="text-red-600">*</span>'.html_safe, class: "block text-sm font-medium text-gray-700" %>
             <%= form.collection_select :customer_id, 
               Customer.order(:name), 
               :id, 
               :name, 
               { prompt: "選択してください" }, 
-              { class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" } %>
+              { class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", required: true } %>
           </div>
 
           <div class="col-span-6 sm:col-span-3">
@@ -76,9 +76,9 @@
 
           <div class="col-span-6 sm:col-span-2">
             <%= form.label :status, 'ステータス', class: "block text-sm font-medium text-gray-700" %>
-            <%= form.select :status, 
-              Invoice.statuses.keys.map { |s| [t("activerecord.attributes.invoice.statuses.#{s}", default: s.humanize), s] }, 
-              { selected: invoice.status || 'draft' }, 
+            <%= form.select :status,
+              [['下書き','draft'], ['送付済み','sent'], ['入金済み','paid'], ['期限切れ','overdue'], ['キャンセル','cancelled']],
+              { selected: invoice.status || 'draft' },
               { class: "mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" } %>
           </div>
 
@@ -122,6 +122,23 @@
   <div class="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6 mt-6">
     <div class="md:grid md:grid-cols-3 md:gap-6">
       <div class="md:col-span-1">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">金額</h3>
+        <p class="mt-1 text-sm text-gray-500">明細の合計額です。</p>
+      </div>
+      <div class="mt-5 md:mt-0 md:col-span-2">
+        <div class="flex items-baseline gap-4">
+          <div class="text-3xl font-bold text-gray-900">
+            <span class="subtotal-amount">0</span>
+            <span class="text-xl">円</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6 mt-6">
+    <div class="md:grid md:grid-cols-3 md:gap-6">
+      <div class="md:col-span-1">
         <h3 class="text-lg font-medium leading-6 text-gray-900">備考</h3>
         <p class="mt-1 text-sm text-gray-500">請求書に表示する備考があれば入力してください。</p>
       </div>
@@ -137,4 +154,4 @@
   </div>
 <% end %>
 
-<%= javascript_import_module_tag "invoices" %>
+<%= javascript_import_module_tag "application" %>

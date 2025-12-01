@@ -52,10 +52,10 @@ class InvoicesController < ApplicationController
     respond_to do |format|
       format.html
       format.pdf do
-        send_data generate_pdf(@invoice),
-                  filename: "請求書_#{@invoice.invoice_number}.pdf",
-                  type: 'application/pdf',
-                  disposition: 'inline'
+        render pdf: "請求書_#{@invoice.invoice_number}",
+               template: 'invoices/show_pdf',
+               locals: { invoice: @invoice },
+               encoding: "UTF-8"
       end
     end
   end
@@ -69,7 +69,10 @@ class InvoicesController < ApplicationController
       customer_id: params[:customer_id],
       application_id: params[:application_id]
     )
-    @invoice.valid? # 請求書番号を生成するためにバリデーションを実行
+    # before_validation による自動採番を呼び出すために valid? を実行していたが、
+    # その副作用で空のフォームにバリデーションエラーが表示されてしまう。
+    # private メソッドを直接呼び出して請求書番号を生成する（エラーを出さない）。
+    @invoice.send(:generate_invoice_number)
     1.times { @invoice.invoice_items.build } if @invoice.invoice_items.empty?
   end
 
@@ -100,10 +103,13 @@ class InvoicesController < ApplicationController
   end
 
   def download
-    send_data generate_pdf(@invoice),
-              filename: "請求書_#{@invoice.invoice_number}.pdf",
-              type: 'application/pdf',
-              disposition: 'attachment'
+    send_data WickedPdf.new.pdf_from_string(
+      render_to_string(template: 'invoices/show_pdf', locals: { invoice: @invoice }),
+      encoding: "UTF-8"
+    ),
+    filename: "請求書_#{@invoice.invoice_number}.pdf",
+    type: 'application/pdf',
+    disposition: 'attachment'
   end
 
   private

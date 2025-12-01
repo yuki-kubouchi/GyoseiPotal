@@ -2,17 +2,19 @@
 import "@hotwired/turbo-rails"
 import "controllers"
 import * as ActiveStorage from "@rails/activestorage"
+import "jquery"
 import "@nathanvda/cocoon"
+
+// Invoice-specific behaviors (amount calc, +/- buttons)
+import "./invoices"
 
 // グローバルにcocoonを利用可能にする
 window.Cocoon = window.Cocoon || {};
 
 // cocoonの初期化
-import { Application } from "@hotwired/stimulus"
-import { definitionsFromContext } from "@hotwired/stimulus-webpack-helpers"
-
-const application = Application.start()
-const context = require.context("../controllers", true, /\.js$/)
-application.load(definitionsFromContext(context))
-
 ActiveStorage.start()
+
+// Stimulus controllers are loaded via the importmap "controllers" entry.
+// The legacy webpack helpers (require.context / stimulus-webpack-helpers)
+// are not available when using importmap-rails, so we avoid them here.
+

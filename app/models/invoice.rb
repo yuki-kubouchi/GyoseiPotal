@@ -8,6 +8,7 @@ class Invoice < ApplicationRecord
   enum status: { draft: 'draft', sent: 'sent', paid: 'paid', overdue: 'overdue', cancelled: 'cancelled' }
 
   validates :invoice_number, presence: true, uniqueness: true
+  validates :customer_id, presence: true
   validates :issue_date, presence: true
   validates :due_date, presence: true
   validates :status, presence: true
@@ -35,20 +36,6 @@ class Invoice < ApplicationRecord
 
   def generate_invoice_number
     return if invoice_number.present?
-
-    date = Date.current.strftime('%Y%m%d')
-    last_invoice = Invoice.where('invoice_number LIKE ?', "#{date}%").order(:invoice_number).last
-    if last_invoice
-      number = last_invoice.invoice_number[8..-1].to_i + 1
-      self.invoice_number = "#{date}#{number.to_s.rjust(4, '0')}"
-    else
-      self.invoice_number = "#{date}0001"
-    end
-  end
-
-  private
-
-  def generate_invoice_number
-    "INV-#{Time.current.strftime('%Y%m%d')}-#{SecureRandom.hex(2).upcase}"
+    self.invoice_number = "INV-#{Time.current.strftime('%Y%m%d')}-#{SecureRandom.hex(2).upcase}"
   end
 end

@@ -69,30 +69,26 @@
         <thead class="bg-gray-50">
           <tr>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">品名</th>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">数量</th>
             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">単価</th>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">金額</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <% @invoice.invoice_items.each do |item| %>
             <tr>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= item.description %></td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right"><%= item.quantity %></td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right"><%= number_to_currency(item.unit_price, unit: "¥", format: "%u%n", precision: 0) %></td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium"><%= number_to_currency(item.amount, unit: "¥", format: "%u%n", precision: 0) %></td>
             </tr>
           <% end %>
           <tr class="bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" colspan="3">小計</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">小計</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium"><%= number_to_currency(@invoice.subtotal, unit: "¥", format: "%u%n", precision: 0) %></td>
           </tr>
           <tr class="bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" colspan="3">消費税（<%= number_to_percentage(@invoice.tax_rate, precision: 1) %>）</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">消費税（<%= number_to_percentage(@invoice.tax_rate, precision: 1) %>）</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium"><%= number_to_currency(@invoice.tax_amount, unit: "¥", format: "%u%n", precision: 0) %></td>
           </tr>
           <tr class="bg-gray-100">
-            <td class="px-6 py-4 whitespace-nowrap text-lg font-bold text-gray-900" colspan="3">合計金額</td>
+            <td class="px-6 py-4 whitespace-nowrap text-lg font-bold text-gray-900">合計金額</td>
             <td class="px-6 py-4 whitespace-nowrap text-lg font-bold text-gray-900 text-right"><%= number_to_currency(@invoice.total, unit: "¥", format: "%u%n", precision: 0) %></td>
           </tr>
         </tbody>
