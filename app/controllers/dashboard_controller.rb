@@ -23,13 +23,14 @@ class DashboardController < ApplicationController
                                         .order(due_on: :asc)
                                         .limit(10)
 
-    # Invoice total (this month): sum issued or paid invoices
+    # Invoice total (this month): sum of all invoice totals for sent or paid invoices
     if defined?(Invoice)
       month_range = Time.current.all_month
-      @invoice_total_yen = Invoice.joins(:invoice_items)
-                                 .where(issue_date: month_range)
-                                 .where(status: [Invoice.statuses[:sent], Invoice.statuses[:paid]])
-                                 .sum('invoice_items.amount')
+      @invoice_total_yen = Invoice.where(issue_date: month_range)
+                                 .where(status: ['sent', 'paid'])
+                                 .includes(:invoice_items)
+                                 .sum { |invoice| invoice.total }
+                                 .to_i
     else
       @invoice_total_yen = 0
     end

@@ -70,7 +70,7 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= invoice.invoice_number %></td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= invoice.customer.name %></td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= invoice.application&.title %></td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right"><%= number_to_currency(invoice.total, unit: "¥", format: "%u%n", precision: 0) %></td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right"><%= number_with_delimiter(invoice.total.to_i) %> 円</td>
             <td class="px-4 py-3 text-gray-900 whitespace-nowrap"><%= invoice.issue_date&.strftime('%Y/%m/%d') %></td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= invoice.due_date&.strftime('%Y/%m/%d') %></td>
             <td class="px-6 py-4 whitespace-nowrap">

@@ -42,6 +42,28 @@ document.addEventListener('turbolinks:load', function() {
     }
   });
 
+  // 単価の上下ボタン機能（1000円単位）
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.price-btn-up')) {
+      const item = e.target.closest('.nested-fields');
+      const unitPriceField = item.querySelector('.unit-price-field');
+      const currentValue = parseFloat(unitPriceField.value) || 0;
+      unitPriceField.value = (currentValue + 1000).toFixed(0);
+      unitPriceField.dispatchEvent(new Event('change', { bubbles: true }));
+      e.preventDefault();
+    }
+    if (e.target.closest('.price-btn-down')) {
+      const item = e.target.closest('.nested-fields');
+      const unitPriceField = item.querySelector('.unit-price-field');
+      const currentValue = parseFloat(unitPriceField.value) || 0;
+      if (currentValue >= 1000) {
+        unitPriceField.value = (currentValue - 1000).toFixed(0);
+        unitPriceField.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      e.preventDefault();
+    }
+  });
+
   // 初期ロード時に合計を計算
   updateTotals();
 });
