@@ -120,50 +120,53 @@ class InvoicesController < ApplicationController
     )
   end
 
+  def number_format(number)
+    number.to_i.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
+  end
+
+  def sanitize_for_pdf(text)
+    # Remove non-ASCII characters and replace with placeholder
+    text.to_s.encode('ASCII', invalid: :replace, undef: :replace, replace: '?')
+  end
+
   def generate_pdf(invoice)
     require 'prawn'
     require 'prawn/table'
     
     pdf = Prawn::Document.new(page_size: 'A4', page_layout: :portrait, margin: [40, 40, 40, 40])
     
-    # 日本語フォントの設定
-    font_path = Rails.root.join('app', 'assets', 'fonts')
-    pdf.font_families.update(
-      'Noto Sans JP' => {
-        normal: font_path.join('NotoSansJP-Regular.ttf').to_s,
-        bold: font_path.join('NotoSansJP-Bold.ttf').to_s
-      }
-    )
-    pdf.font 'Noto Sans JP'
+    # Use default font (no custom fonts due to LFS issues)
+    # Japanese text will be displayed in Helvetica placeholder format
+    pdf.font 'Helvetica'
     
     # ヘッダー
-    pdf.text "請求書", size: 24, align: :center, style: :bold
+    pdf.text "Invoice", size: 24, align: :center, style: :bold
     pdf.move_down 30
     
-    # 基本情報
-    pdf.text "請求番号: #{invoice.invoice_number}", size: 12
-    pdf.text "発行日: #{invoice.issue_date}", size: 12
-    pdf.text "お支払い期限: #{invoice.due_date}", size: 12
+    # Basic Information
+    pdf.text "Invoice Number: #{invoice.invoice_number}", size: 12
+    pdf.text "Issue Date: #{invoice.issue_date}", size: 12
+    pdf.text "Due Date: #{invoice.due_date}", size: 12
     pdf.move_down 20
     
-    # 顧客情報
-    pdf.text "【お客様情報】", size: 12, style: :bold
-    pdf.text "会社名: #{invoice.customer&.name}", size: 12
-    pdf.text "担当者様", size: 12
+    # Customer Information
+    pdf.text "CUSTOMER INFORMATION", size: 12, style: :bold
+    pdf.text "Company: #{sanitize_for_pdf(invoice.customer&.name)}", size: 12
+    pdf.text "Attention:", size: 12
     pdf.move_down 20
     
-    # 明細タイトル
-    pdf.text "【ご請求内容】", size: 12, style: :bold
+    # Invoice Items Title
+    pdf.text "INVOICE DETAILS", size: 12, style: :bold
     pdf.move_down 10
     
-    # 明細テーブル
-    items = [["品目", "数量", "単価", "金額"]]
+    # Invoice Items Table
+    items = [["Description", "Quantity", "Unit Price", "Amount"]]
     invoice.invoice_items.each do |item|
       items << [
-        item.description,
-        item.quantity,
-        number_to_currency(item.unit_price, unit: "¥", precision: 0, format: "%u%n"),
-        number_to_currency(item.amount, unit: "¥", precision: 0, format: "%u%n")
+        sanitize_for_pdf(item.description),
+        item.quantity.to_s,
+        "#{number_format(item.unit_price)}",
+        "#{number_format(item.amount)}"
       ]
     end
     
@@ -177,22 +180,22 @@ class InvoicesController < ApplicationController
     
     pdf.move_down 20
     
-    # 合計
-    pdf.text "小計: #{number_to_currency(invoice.subtotal, unit: "¥", precision: 0, format: "%u%n")}", align: :right
-    pdf.text "消費税(#{invoice.tax_rate}%): #{number_to_currency(invoice.tax_amount, unit: "¥", precision: 0, format: "%u%n")}", align: :right
-    pdf.text "合計金額: #{number_to_currency(invoice.total, unit: "¥", precision: 0, format: "%u%n")}", align: :right, size: 14, style: :bold
+    # Totals
+    pdf.text "Subtotal: #{number_format(invoice.subtotal)}", align: :right
+    pdf.text "Tax (#{invoice.tax_rate}%): #{number_format(invoice.tax_amount)}", align: :right
+    pdf.text "Total: #{number_format(invoice.total)}", align: :right, size: 14, style: :bold
     
-    # 備考
+    # Notes
     if invoice.notes.present?
       pdf.move_down 20
-      pdf.text "【備考】", size: 12, style: :bold
-      pdf.text invoice.notes, size: 12
+      pdf.text "NOTES", size: 12, style: :bold
+      pdf.text sanitize_for_pdf(invoice.notes), size: 12
     end
     
-    # フッター
+    # Footer
     pdf.repeat(:all) do
       pdf.bounding_box([0, 30], width: 540, height: 20) do
-        pdf.text "#{invoice.issue_date} 発行", align: :right, size: 10
+        pdf.text "Issued: #{invoice.issue_date}", align: :right, size: 10
       end
     end
     

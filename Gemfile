@@ -63,6 +63,10 @@ gem "bootsnap", require: false
 # Pagination
 gem "kaminari"
 
+# PDF生成用（日本語対応）
+gem 'prawn'
+gem 'prawn-table'
+
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
@@ -78,10 +82,6 @@ end
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ]
-  
-  # PDF生成用
-  gem 'prawn'
-  gem 'prawn-table'
 end
 
 group :test do
