@@ -141,67 +141,117 @@ class InvoicesController < ApplicationController
     
     pdf = Prawn::Document.new(page_size: 'A4', page_layout: :portrait, margin: [40, 40, 40, 40])
     
-    # Use default font (no custom fonts due to LFS issues)
-    # Japanese text will be displayed in Helvetica placeholder format
-    pdf.font 'Helvetica'
+    # 日本語フォントの設定
+    pdf.font_families.update(
+      'IPAGothic' => {
+        normal: 'ipag.ttf',
+        bold: 'ipag.ttf',
+        italic: 'ipag.ttf',
+        bold_italic: 'ipag.ttf'
+      }
+    )
+    
+    begin
+      pdf.font 'IPAGothic'
+    rescue Prawn::Errors::UnknownFont
+      # 日本語フォントが利用できない場合はデフォルトのフォントを使用
+      pdf.font 'Helvetica'
+    end
     
     # ヘッダー
-    pdf.text "Invoice", size: 24, align: :center, style: :bold
+    pdf.text "請求書", size: 24, align: :center, style: :bold
     pdf.move_down 30
     
-    # Basic Information
-    pdf.text "Invoice Number: #{invoice.invoice_number}", size: 12
-    pdf.text "Issue Date: #{invoice.issue_date}", size: 12
-    pdf.text "Due Date: #{invoice.due_date}", size: 12
-    pdf.move_down 20
+    # 基本情報
+    pdf.text "請求書番号: #{invoice.invoice_number}", size: 12
+    pdf.text "発行日: #{invoice.issue_date.strftime('%Y年%m月%d日')}", size: 12
+    pdf.text "支払期日: #{invoice.due_date.strftime('%Y年%m月%d日')}", size: 12
+    pdf.move_down 30
     
-    # Customer Information
-    pdf.text "CUSTOMER INFORMATION", size: 12, style: :bold
-    pdf.text "Company: #{sanitize_for_pdf(invoice.customer&.name)}", size: 12
-    pdf.text "Attention:", size: 12
-    pdf.move_down 20
+    # 請求先情報と発行者情報を横並びに表示
+    pdf.bounding_box([0, pdf.cursor], width: pdf.bounds.width) do
+      # 左側: 請求先情報
+      pdf.bounding_box([0, pdf.cursor], width: pdf.bounds.width / 2 - 15) do
+        pdf.stroke_bounds
+        pdf.pad(10) do
+          pdf.text "請求先", size: 14, style: :bold
+          pdf.move_down 5
+          
+          if invoice.customer&.company_name.present?
+            pdf.text "#{invoice.customer.company_name} 御中", size: 12
+          else
+            pdf.text "#{invoice.customer&.name} 様", size: 12
+          end
+          
+          if invoice.application.present?
+            pdf.move_down 5
+            pdf.text "案件: #{invoice.application.title}", size: 10
+          end
+        end
+      end
+      
+      # 右側: 発行者情報
+      pdf.bounding_box([pdf.bounds.width / 2 + 5, pdf.cursor + pdf.bounds.absolute_top - pdf.y], 
+                      width: pdf.bounds.width / 2 - 15) do
+        pdf.stroke_bounds
+        pdf.pad(10) do
+          pdf.text "発行者", size: 14, style: :bold
+          pdf.move_down 5
+          
+          pdf.text "行政ポータル事務所", size: 12
+          pdf.text "〒100-0000", size: 10
+          pdf.text "東京都千代田区〇〇1-2-3", size: 10
+          pdf.move_down 5
+          pdf.text "TEL: 03-1234-5678", size: 10
+          pdf.text "FAX: 03-1234-5679", size: 10
+          pdf.text "Email: info@gyoseipotal.jp", size: 10
+        end
+      end
+    end
     
-    # Invoice Items Title
-    pdf.text "INVOICE DETAILS", size: 12, style: :bold
+    pdf.move_down 30
+    
+    # 明細タイトル
+    pdf.text "明細", size: 14, style: :bold
     pdf.move_down 10
     
-    # Invoice Items Table
-    items = [["Description", "Quantity", "Unit Price", "Amount"]]
+    # 明細テーブル
+    items = [["品名", "数量", "単価", "金額"]]
     invoice.invoice_items.each do |item|
       items << [
-        sanitize_for_pdf(item.description),
+        item.description.to_s,
         item.quantity.to_s,
-        "#{number_format(item.unit_price)}",
-        "#{number_format(item.amount)}"
+        number_format(item.unit_price.to_i).to_s,
+        number_format(item.amount.to_i).to_s
       ]
     end
     
-    pdf.table items, width: 500, cell_style: { size: 10, border_width: 1, padding: 8 } do
-      row(0).font_style = :bold
-      row(0).background_color = "f0f0f0"
-      columns(1..3).align = :right
-      self.row_colors = ["ffffff", "f8f8f8"]
-      self.header = true
+    pdf.table items, width: 500, cell_style: { size: 10, border_width: 1, padding: 8 } do |table|
+      table.row(0).font_style = :bold
+      table.row(0).background_color = "f0f0f0"
+      table.columns(1..3).align = :right
+      table.row_colors = ["ffffff", "f8f8f8"]
+      table.header = true
     end
     
     pdf.move_down 20
     
-    # Totals
-    pdf.text "Subtotal: #{number_format(invoice.subtotal)}", align: :right
-    pdf.text "Tax (#{invoice.tax_rate}%): #{number_format(invoice.tax_amount)}", align: :right
-    pdf.text "Total: #{number_format(invoice.total)}", align: :right, size: 14, style: :bold
+    # 合計
+    pdf.text "小計: #{number_format(invoice.subtotal.to_i)} 円", align: :right
+    pdf.text "消費税 (#{invoice.tax_rate}%): #{number_format(invoice.tax_amount.to_i)} 円", align: :right
+    pdf.text "合計: #{number_format(invoice.total.to_i)} 円", align: :right, size: 14, style: :bold
     
-    # Notes
+    # 備考
     if invoice.notes.present?
       pdf.move_down 20
-      pdf.text "NOTES", size: 12, style: :bold
-      pdf.text sanitize_for_pdf(invoice.notes), size: 12
+      pdf.text "備考", size: 12, style: :bold
+      pdf.text invoice.notes.to_s, size: 12
     end
     
-    # Footer
+    # フッター
     pdf.repeat(:all) do
       pdf.bounding_box([0, 30], width: 540, height: 20) do
-        pdf.text "Issued: #{invoice.issue_date}", align: :right, size: 10
+        pdf.text "発行日: #{invoice.issue_date.strftime('%Y年%m月%d日')}", align: :right, size: 10
       end
     end
     
