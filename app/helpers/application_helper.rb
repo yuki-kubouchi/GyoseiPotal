@@ -1,4 +1,6 @@
 module ApplicationHelper
+  include Cocoon::ViewHelpers
+
   def status_badge_class(status)
     base_classes = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
     case status.to_sym
@@ -11,15 +13,9 @@ module ApplicationHelper
     when :overdue
       "#{base_classes} bg-red-100 text-red-800"
     when :cancelled
-      "#{base_classes} bg-gray-200 text-gray-800"
+      "#{base_classes} bg-yellow-100 text-yellow-800"
     else
-      base_classes
+      "#{base_classes} bg-gray-100 text-gray-800"
     end
-  end
-
-  def format_date_with_weekday(date)
-    return '-' unless date
-    weekdays = %w[日 月 火 水 木 金 土]
-    "#{date.strftime('%Y/%m/%d')}(#{weekdays[date.wday]})"
   end
 end
