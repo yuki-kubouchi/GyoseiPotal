@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>領収書</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Noto Sans JP', 'Hiragino Sans', Arial, sans-serif;
+      font-size: 12pt;
+      color: #333;
+      line-height: 1.2;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 8px 15px;
+    }
+    .main-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    .main-table td {
+      padding: 0;
+      vertical-align: top;
+    }
+    .left-col {
+      width: 48%;
+    }
+    .spacer-col {
+      width: 4%;
+    }
+    .right-col {
+      width: 48%;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .title {
+      font-size: 24pt;
+      font-weight: bold;
+      margin-bottom: 10px;
+      letter-spacing: 0.2em;
+    }
+    .info-row {
+      display: flex;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .info-label {
+      font-weight: bold;
+      width: 80px;
+      flex-shrink: 0;
+    }
+    .info-value {
+      flex: 1;
+      border-bottom: 1px solid #333;
+      padding-bottom: 2px;
+    }
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      border-bottom: 1px solid #333;
+      padding-bottom: 5px;
+      margin: 20px 0 10px;
+    }
+    .box {
+      padding: 15px;
+      border: 1px solid #e0e0e0;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+    }
+    .box-title {
+      font-size: 16px;
+      font-weight: bold;
+      border-bottom: 1px solid #333;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+    }
+    .amount-box {
+      text-align: center;
+      margin: 20px 0;
+      padding: 15px;
+      border: 2px solid #333;
+      border-radius: 4px;
+    }
+    .amount-text {
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    .amount-value {
+      font-size: 28px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .stamp {
+      float: right;
+      width: 120px;
+      height: 120px;
+      border: 1px solid #ccc;
+      margin: 20px 0 20px 20px;
+      position: relative;
+    }
+    .stamp::before {
+      content: "領収印";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      color: #ccc;
+      font-size: 18px;
+      opacity: 0.5;
+    }
+    .clear {
+      clear: both;
+    }
+    .footer {
+      margin-top: 30px;
+      padding-top: 10px;
+      border-top: 1px solid #ccc;
+      font-size: 11pt;
+      text-align: right;
+      color: #666;
+    }
+    .receipt-details {
+      margin-top: 20px;
+    }
+    .receipt-details p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ヘッダー -->
+    <div class="header">
+      <div class="title">領 収 書</div>
+    </div>
+
+    <!-- メインコンテンツ -->
+    <table class="main-table">
+      <!-- 基本情報行 -->
+      <tr>
+        <td colspan="3" style="padding-bottom: 15px;">
+          <div class="info-row">
+            <span class="info-label">領収書番号</span>
+            <span class="info-value"><%= invoice.invoice_number %></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">発行日</span>
+            <span class="info-value"><%= Date.current.strftime('%Y年%m月%d日') %></span>
+          </div>
+        </td>
+      </tr>
+
+      <!-- お客様情報・発行者情報行 -->
+      <tr>
+        <td class="left-col">
+          <div class="box">
+            <div class="box-title">お客様情報</div>
+            <% if invoice.customer&.company_name.present? %>
+              <div style="margin-bottom: 10px; font-size: 16px; font-weight: bold;"><%= invoice.customer.company_name %></div>
+              <div style="margin-bottom: 5px;">御中</div>
+            <% else %>
+              <div style="margin-bottom: 10px; font-size: 16px; font-weight: bold;"><%= invoice.customer&.name %> 様</div>
+            <% end %>
+            <% if invoice.application.present? %>
+              <div style="margin-top: 10px; font-size: 13px;">
+                <div>ご利用サービス: <%= invoice.application.title %></div>
+              </div>
+            <% end %>
+          </div>
+        </td>
+        <td class="spacer-col"></td>
+        <td class="right-col">
+          <div class="box">
+            <div class="box-title">発行元</div>
+            <div style="margin-bottom: 10px; font-size: 16px; font-weight: bold;">行政ポータル事務所</div>
+            <div style="margin-bottom: 5px; font-size: 13px;">〒100-0000</div>
+            <div style="margin-bottom: 15px; font-size: 13px;">東京都千代田区〇〇1-2-3</div>
+            <table cellspacing="0" cellpadding="0" style="width: 100%;">
+              <tr>
+                <td style="width: 50px; font-size: 13px; color: #666; padding: 2px 0; vertical-align: top;">TEL</td>
+                <td style="font-size: 13px; padding: 2px 0;">03-1234-5678</td>
+              </tr>
+              <tr>
+                <td style="width: 50px; font-size: 13px; color: #666; padding: 2px 0; vertical-align: top;">FAX</td>
+                <td style="font-size: 13px; padding: 2px 0;">03-1234-5679</td>
+              </tr>
+              <tr>
+                <td style="width: 50px; font-size: 13px; color: #666; padding: 2px 0; vertical-align: top;">Email</td>
+                <td style="font-size: 13px; padding: 2px 0;">info@gyoseipotal.jp</td>
+              </tr>
+            </table>
+          </div>
+        </td>
+      </tr>
+
+      <!-- 領収金額 -->
+      <div class="amount-box">
+        <div class="amount-text">下記の通り領収いたします。</div>
+        <div class="amount-value">\<%= number_with_delimiter(invoice.total.to_i) %></div>
+        <div class="amount-text">(税込 <%= number_with_delimiter(invoice.total.to_i) %>円)</div>
+      </div>
+
+      <!-- 但し書き -->
+      <div class="stamp"></div>
+      <div class="receipt-details">
+        <p>但し、<%= invoice.invoice_items.map(&:description).join('、') %>として</p>
+        <p>上記正に領収いたしました。</p>
+        <p style="margin-top: 20px;"><%= Date.current.strftime('%-m月%-d日') %> 受領</p>
+      </div>
+      <div class="clear"></div>
+
+      <!-- 明細 -->
+      <div class="section-title">明細</div>
+      <table class="table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr>
+            <th style="border: 1px solid #e0e0e0; padding: 8px; text-align: left; background-color: #f5f5f5;">品名・サービス</th>
+            <th style="border: 1px solid #e0e0e0; padding: 8px; text-align: right; background-color: #f5f5f5;">単価（税抜）</th>
+            <th style="border: 1px solid #e0e0e0; padding: 8px; text-align: right; background-color: #f5f5f5;">金額（税抜）</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% invoice.invoice_items.each do |item| %>
+            <tr>
+              <td style="border: 1px solid #e0e0e0; padding: 8px;"><%= item.description %></td>
+              <td style="border: 1px solid #e0e0e0; padding: 8px; text-align: right;"><%= number_with_delimiter(item.unit_price.to_i) %></td>
+              <td style="border: 1px solid #e0e0e0; padding: 8px; text-align: right;"><%= number_with_delimiter(item.amount.to_i) %></td>
+            </tr>
+          <% end %>
+          <tr>
+            <td colspan="2" style="border: 1px solid #e0e0e0; padding: 8px; text-align: right; font-weight: bold;">小計（税抜）</td>
+            <td style="border: 1px solid #e0e0e0; padding: 8px; text-align: right; font-weight: bold;"><%= number_with_delimiter(invoice.subtotal.to_i) %></td>
+          </tr>
+          <tr>
+            <td colspan="2" style="border: 1px solid #e0e0e0; padding: 8px; text-align: right;">消費税（<%= invoice.tax_rate %>%）</td>
+            <td style="border: 1px solid #e0e0e0; padding: 8px; text-align: right;"><%= number_with_delimiter((invoice.total - invoice.subtotal).to_i) %></td>
+          </tr>
+          <tr>
+            <td colspan="2" style="border: 1px solid #333; padding: 10px; text-align: right; font-size: 16px; font-weight: bold; background-color: #f9f9f9;">合計（税込）</td>
+            <td style="border: 1px solid #333; padding: 10px; text-align: right; font-size: 16px; font-weight: bold; background-color: #f9f9f9;"><%= number_with_delimiter(invoice.total.to_i) %></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- フッター -->
+      <div class="footer">
+        <p>※この領収書は発行日より1年間有効です。</p>
+        <p>※領収書の再発行はできかねますので、大切に保管してください。</p>
+      </div>
+    </table>
+  </div>
+</body>
+</html>

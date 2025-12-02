@@ -123,6 +123,18 @@ class InvoicesController < ApplicationController
       end
     end
   end
+  
+  def download_receipt
+    @invoice = Invoice.find(params[:id])
+    respond_to do |format|
+      format.pdf do
+        render pdf: "領収書_#{@invoice.invoice_number}",
+               template: 'invoices/receipt_pdf',
+               locals: { invoice: @invoice },
+               encoding: "UTF-8"
+      end
+    end
+  end
 
   private
 

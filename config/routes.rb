@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     member do
       get 'download', to: 'invoices#download', as: :download, defaults: { format: 'pdf' }
       get 'download_estimate', to: 'invoices#download_estimate', as: :download_estimate, defaults: { format: 'pdf' }
+      get 'download_receipt', to: 'invoices#download_receipt', as: :download_receipt, defaults: { format: 'pdf' }
     end
   end
   
