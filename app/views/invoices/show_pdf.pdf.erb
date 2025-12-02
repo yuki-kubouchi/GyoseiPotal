@@ -11,70 +11,75 @@
     }
     body {
       font-family: 'Noto Sans JP', 'Hiragino Sans', Arial, sans-serif;
-      font-size: 12pt;
+      font-size: 10pt;
       color: #333;
-      line-height: 1.6;
+      line-height: 1.4;
     }
     .container {
       max-width: 800px;
       margin: 0 auto;
-      padding: 40px;
+      padding: 20px 30px;
     }
     .header {
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 15px;
     }
     .title {
-      font-size: 28pt;
+      font-size: 20pt;
       font-weight: bold;
-      margin-bottom: 30px;
+      margin-bottom: 10px;
     }
     .info-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 10px;
+      margin-bottom: 4px;
+      font-size: 9pt;
     }
     .info-label {
       font-weight: bold;
-      width: 150px;
+      width: 100px;
     }
     .info-value {
       flex: 1;
     }
     .section {
-      margin-bottom: 30px;
+      margin-bottom: 12px;
     }
     .section-title {
-      font-size: 14pt;
+      font-size: 11pt;
       font-weight: bold;
-      border-bottom: 2px solid #333;
-      padding-bottom: 5px;
-      margin-bottom: 15px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 2px;
+      margin-bottom: 8px;
     }
     .customer-info {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 30px;
+      margin-bottom: 10px;
+      gap: 30px;
     }
     .customer-box {
       flex: 1;
-      margin-right: 20px;
+    }
+    .issuer-box {
+      flex: 1;
     }
     .table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
+      margin-bottom: 8px;
+      font-size: 9pt;
     }
     .table th {
       background-color: #f0f0f0;
       border: 1px solid #ccc;
-      padding: 10px;
+      padding: 4px;
       text-align: left;
       font-weight: bold;
     }
     .table td {
       border: 1px solid #ccc;
-      padding: 10px;
+      padding: 4px;
       text-align: left;
     }
     .table td.number {
@@ -83,35 +88,37 @@
     .totals {
       display: flex;
       justify-content: flex-end;
-      margin-top: 20px;
+      margin-top: 10px;
     }
     .totals-box {
-      width: 300px;
+      width: 250px;
+      font-size: 9pt;
     }
     .total-row {
       display: flex;
       justify-content: space-between;
-      padding: 5px 0;
+      padding: 2px 0;
       border-bottom: 1px solid #ccc;
     }
     .total-row.grand-total {
       border-bottom: 2px solid #333;
-      font-size: 14pt;
+      font-size: 11pt;
       font-weight: bold;
-      padding: 10px 0;
-      margin-top: 10px;
+      padding: 4px 0;
+      margin-top: 4px;
     }
     .notes {
-      margin-top: 30px;
-      padding: 15px;
+      margin-top: 8px;
+      padding: 8px;
       background-color: #f9f9f9;
-      border-left: 3px solid #333;
+      border-left: 2px solid #333;
+      font-size: 8pt;
     }
     .footer {
-      margin-top: 40px;
-      padding-top: 20px;
+      margin-top: 15px;
+      padding-top: 10px;
       border-top: 1px solid #ccc;
-      font-size: 10pt;
+      font-size: 8pt;
       text-align: right;
       color: #666;
     }
@@ -134,10 +141,6 @@
         <span class="info-label">発行日</span>
         <span class="info-value"><%= invoice.issue_date.strftime('%Y年%m月%d日') %></span>
       </div>
-      <div class="info-row">
-        <span class="info-label">支払期日</span>
-        <span class="info-value"><%= invoice.due_date.strftime('%Y年%m月%d日') %></span>
-      </div>
     </div>
 
     <!-- Customer Info -->
@@ -145,16 +148,36 @@
       <div class="section-title">請求先</div>
       <div class="customer-info">
         <div class="customer-box">
-          <div class="info-row">
-            <span class="info-label">顧客名</span>
-            <span class="info-value"><strong><%= invoice.customer&.name %></strong></span>
-          </div>
+          <% if invoice.customer&.company_name.present? %>
+            <div class="info-row">
+              <span class="info-value"><strong><%= invoice.customer.company_name %> 御中</strong></span>
+            </div>
+          <% else %>
+            <div class="info-row">
+              <span class="info-value"><strong><%= invoice.customer&.name %> 様</strong></span>
+            </div>
+          <% end %>
           <% if invoice.application.present? %>
           <div class="info-row">
             <span class="info-label">案件</span>
             <span class="info-value"><%= invoice.application.title %></span>
           </div>
           <% end %>
+        </div>
+        <div class="issuer-box">
+          <strong style="font-size: 9pt;">発行者情報</strong>
+          <div class="info-row" style="margin-bottom: 2px;">
+            <span class="info-label" style="width: 60px;">事務所</span>
+            <span class="info-value">行政ポータル事務所</span>
+          </div>
+          <div class="info-row" style="margin-bottom: 2px;">
+            <span class="info-label" style="width: 60px;">電話</span>
+            <span class="info-value">03-1234-5678</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label" style="width: 60px;">メール</span>
+            <span class="info-value">info@gyoseipotal.jp</span>
+          </div>
         </div>
       </div>
     </div>
@@ -167,8 +190,6 @@
           <tr>
             <th>品名</th>
             <th style="width: 120px;" class="number">単価 (円)</th>
-            <th style="width: 80px;" class="number">数量</th>
-            <th style="width: 120px;" class="number">金額 (円)</th>
           </tr>
         </thead>
         <tbody>
@@ -176,8 +197,6 @@
           <tr>
             <td><%= item.description %></td>
             <td class="number"><%= number_with_delimiter(item.unit_price.to_i) %></td>
-            <td class="number"><%= item.quantity %></td>
-            <td class="number"><%= number_with_delimiter((item.unit_price.to_i * item.quantity.to_i)) %></td>
           </tr>
           <% end %>
         </tbody>
@@ -202,6 +221,35 @@
       </div>
     </div>
 
+    <!-- Payment Info -->
+    <div class="section">
+      <div class="section-title">振込先</div>
+      <div class="info-row">
+        <span class="info-label">銀行名</span>
+        <span class="info-value">〇〇銀行</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">支店名</span>
+        <span class="info-value">〇〇支店</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">口座種別</span>
+        <span class="info-value">普通預金</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">口座番号</span>
+        <span class="info-value">1234567</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">口座名義</span>
+        <span class="info-value">行政ポータル事務所</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">支払期日</span>
+        <span class="info-value"><strong><%= invoice.due_date.strftime('%Y年%m月%d日') %></strong></span>
+      </div>
+    </div>
+
     <!-- Notes -->
     <% if invoice.notes.present? %>
     <div class="section">
@@ -212,7 +260,6 @@
     </div>
     <% end %>
 
-    <!-- Footer -->
     <div class="footer">
       発行日: <%= invoice.issue_date.strftime('%Y年%m月%d日') %>
     </div>
