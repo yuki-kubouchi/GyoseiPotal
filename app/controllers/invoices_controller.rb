@@ -111,6 +111,18 @@ class InvoicesController < ApplicationController
     type: 'application/pdf',
     disposition: 'attachment'
   end
+  
+  def download_estimate
+    @invoice = Invoice.find(params[:id])
+    respond_to do |format|
+      format.pdf do
+        render pdf: "見積書_#{@invoice.invoice_number}",
+               template: 'invoices/estimate_pdf',
+               locals: { invoice: @invoice },
+               encoding: "UTF-8"
+      end
+    end
+  end
 
   private
 

@@ -16,4 +16,10 @@ module ApplicationHelper
       base_classes
     end
   end
+
+  def format_date_with_weekday(date)
+    return '-' unless date
+    weekdays = %w[日 月 火 水 木 金 土]
+    "#{date.strftime('%Y/%m/%d')}(#{weekdays[date.wday]})"
+  end
 end

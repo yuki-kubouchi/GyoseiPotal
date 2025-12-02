@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resources :invoices do
     member do
       get 'download', to: 'invoices#download', as: :download, defaults: { format: 'pdf' }
+      get 'download_estimate', to: 'invoices#download_estimate', as: :download_estimate, defaults: { format: 'pdf' }
     end
   end
   
