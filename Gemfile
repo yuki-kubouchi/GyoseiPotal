@@ -98,3 +98,7 @@ end
 
 # ネストしたフォーム用
 gem 'cocoon'
+
+# グラフ表示用
+gem 'chartkick'
+gem 'groupdate'  # 日付集計用

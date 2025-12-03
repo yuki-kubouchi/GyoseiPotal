@@ -4,6 +4,8 @@ import "controllers"
 import * as ActiveStorage from "@rails/activestorage"
 import "jquery"
 import "@nathanvda/cocoon"
+import "chartkick"
+import "chart.js/auto"
 
 // Invoice-specific behaviors (amount calc, +/- buttons)
 import "./invoices"

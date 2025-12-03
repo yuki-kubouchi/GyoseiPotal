@@ -1,0 +1,39 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-6">申請分析ダッシュボード</h1>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <!-- 月別申請件数グラフ -->
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h2 class="text-xl font-semibold mb-4">月別申請件数（過去6ヶ月）</h2>
+      <div class="h-64">
+        <%= line_chart @monthly_applications, 
+                      colors: ["#4F46E5"],
+                      library: {
+                        title: { display: false },
+                        scales: {
+                          y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                        }
+                      } %>
+      </div>
+    </div>
+    
+    <!-- ステータス別申請件数 -->
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h2 class="text-xl font-semibold mb-4">ステータス別申請件数</h2>
+      <div class="h-64">
+        <%= pie_chart @status_counts, 
+                     donut: true,
+                     colors: ["#10B981", "#F59E0B", "#EF4444", "#3B82F6"],
+                     library: {
+                       title: { display: false }
+                     } %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- その他の分析情報があればここに追加 -->
+  
+  <div class="mt-8">
+    <%= link_to 'ダッシュボードに戻る', root_path, class: "text-blue-600 hover:text-blue-800" %>
+  </div>
+</div>

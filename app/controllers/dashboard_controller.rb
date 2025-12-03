@@ -1,5 +1,11 @@
 class DashboardController < ApplicationController
   def index
+    # 月次売上データ（空のハッシュで初期化）
+    @monthly_revenue = {}
+    
+    # 月別申請件数（空のハッシュで初期化）
+    @monthly_applications = {}
+    
     # Counts
     @incomplete_count = Application.where.not(status: Application.statuses[:approved]).count
 
