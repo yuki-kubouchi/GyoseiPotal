@@ -1,5 +1,13 @@
 module ApplicationHelper
   include Cocoon::ViewHelpers
+  
+  def format_date_with_weekday(date)
+    return '' unless date
+    
+    weekdays = %w[日 月 火 水 木 金 土]
+    weekday = weekdays[date.wday]
+    date.strftime("%Y年%m月%d日(#{weekday})")
+  end
 
   def status_badge_class(status)
     base_classes = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
