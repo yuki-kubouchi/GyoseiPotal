@@ -13,6 +13,18 @@ export default class extends Controller {
     
     const content = this.templateTarget.innerHTML.replace(/NEW_RECORD/g, new Date().getTime())
     this.addButtonTarget.insertAdjacentHTML('beforebegin', content)
+    
+    // 動的に追加された要素に対してイベントを再設定
+    const newItem = this.addButtonTarget.previousElementSibling
+    if (newItem) {
+      // 金額計算を初期化
+      if (typeof calculateAmount === 'function') {
+        calculateAmount(newItem)
+      }
+      if (typeof updateTotals === 'function') {
+        updateTotals()
+      }
+    }
   }
 
   remove(e) {
