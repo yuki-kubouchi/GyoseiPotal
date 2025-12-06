@@ -6,8 +6,8 @@ class DashboardController < ApplicationController
     # データ分析用のデータ - 月別申請件数
     @monthly_applications = Application
       .where(created_at: 6.months.ago.beginning_of_month..Time.current.end_of_month)
-      .group(Arel.sql("strftime('%Y-%m', created_at)"))
-      .order(Arel.sql("strftime('%Y-%m', created_at)"))
+      .group("to_char(created_at, 'YYYY-MM')")
+      .order("to_char(created_at, 'YYYY-MM')")
       .count
       .transform_keys { |date_str| Date.parse("#{date_str}-01").strftime('%Y年%m月') }
     
@@ -19,8 +19,8 @@ class DashboardController < ApplicationController
       Invoice
         .where(issue_date: 6.months.ago.beginning_of_month..Time.current.end_of_month)
         .where(status: ['sent', 'paid'])
-        .group(Arel.sql("strftime('%Y-%m', issue_date)"))
-        .order(Arel.sql("strftime('%Y-%m', issue_date)"))
+        .group("to_char(issue_date, 'YYYY-MM')")
+        .order("to_char(issue_date, 'YYYY-MM')")
         .sum(:total_amount)
         .transform_keys { |date_str| Date.parse("#{date_str}-01").strftime('%Y年%m月') }
     else
@@ -58,7 +58,8 @@ class DashboardController < ApplicationController
     # 1. 月別申請件数（過去6ヶ月）
     @monthly_applications = Application
       .where(created_at: 6.months.ago.beginning_of_month..Time.current.end_of_month)
-      .group_by_month(:created_at, format: '%Y年%m月')
+      .group("to_char(created_at, 'YYYY年MM月')")
+      .order("to_char(created_at, 'YYYY年MM月')")
       .count
     
     # 2. ステータス別申請件数（日本語ラベルに変換）
@@ -78,7 +79,8 @@ class DashboardController < ApplicationController
       Invoice
         .where(issue_date: 6.months.ago.beginning_of_month..Time.current.end_of_month)
         .where(status: ['sent', 'paid'])
-        .group_by_month(:issue_date, format: '%Y年%m月')
+        .group("to_char(issue_date, 'YYYY年MM月')")
+        .order("to_char(issue_date, 'YYYY年MM月')")
         .sum(:total_amount)
     else
       {}
