@@ -59,11 +59,10 @@ class DashboardController < ApplicationController
     # 1. 月別申請件数（過去6ヶ月）
     @monthly_applications = Application
       .where(created_at: 6.months.ago.beginning_of_month..Time.current.end_of_month)
-      .group(Arel.sql("strftime('%Y-%m', created_at)"))
-      .order(Arel.sql("strftime('%Y-%m', created_at)"))
+      .group(Arel.sql("to_char(created_at, 'YYYY-MM')"))
+      .order(Arel.sql("to_char(created_at, 'YYYY-MM')"))
       .count
       .transform_keys { |date_str| Date.parse("#{date_str}-01").strftime('%Y年%m月') }
-    
     # 2. ステータス別申請件数
     @status_counts = Application.group(:status).count
     
@@ -72,8 +71,8 @@ class DashboardController < ApplicationController
       Invoice
         .where(issue_date: 6.months.ago.beginning_of_month..Time.current.end_of_month)
         .where(status: ['sent', 'paid'])
-        .group(Arel.sql("strftime('%Y-%m', issue_date)"))
-        .order(Arel.sql("strftime('%Y-%m', issue_date)"))
+        .group(Arel.sql("to_char(issue_date, 'YYYY-MM')"))
+        .order(Arel.sql("to_char(issue_date, 'YYYY-MM')"))
         .sum(:total_amount)
         .transform_keys { |date_str| Date.parse("#{date_str}-01").strftime('%Y年%m月') }
     else
