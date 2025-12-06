@@ -1,28 +1,39 @@
 class DashboardController < ApplicationController
   def index
+    # データベースアダプタに応じた日付フォーマット関数を取得
+    date_format = if postgresql?
+      "to_char(created_at, 'YYYY年MM月')"
+    else
+      "strftime('%Y年%m月', created_at)"
+    end
+    
     # ダッシュボード用のデータ
     @incomplete_count = Application.where.not(status: Application.statuses[:approved]).count
     
     # データ分析用のデータ - 月別申請件数
     @monthly_applications = Application
       .where(created_at: 6.months.ago.beginning_of_month..Time.current.end_of_month)
-      .group(Arel.sql("to_char(created_at, 'YYYY-MM')"))
-      .order(Arel.sql("to_char(created_at, 'YYYY-MM')"))
+      .group(Arel.sql(date_format))
+      .order(Arel.sql(date_format))
       .count
-      .transform_keys { |date_str| Date.parse("#{date_str}-01").strftime('%Y年%m月') }
     
     # ステータス別申請件数
     @status_counts = Application.group(:status).count
     
     # 月別売上データ（存在する場合）
     @monthly_revenue = if defined?(Invoice) && Invoice.column_names.include?('issue_date') && Invoice.column_names.include?('total_amount')
+      invoice_date_format = if postgresql?
+        "to_char(issue_date, 'YYYY年MM月')"
+      else
+        "strftime('%Y年%m月', issue_date)"
+      end
+      
       Invoice
         .where(issue_date: 6.months.ago.beginning_of_month..Time.current.end_of_month)
         .where(status: ['sent', 'paid'])
-        .group("to_char(issue_date, 'YYYY-MM')")
-        .order("to_char(issue_date, 'YYYY-MM')")
+        .group(Arel.sql(invoice_date_format))
+        .order(Arel.sql(invoice_date_format))
         .sum(:total_amount)
-        .transform_keys { |date_str| Date.parse("#{date_str}-01").strftime('%Y年%m月') }
     else
       {}
     end
@@ -55,11 +66,18 @@ class DashboardController < ApplicationController
   end
   
   def analysis
+    # データベースアダプタに応じた日付フォーマット関数を取得
+    date_format = if postgresql?
+      "to_char(created_at, 'YYYY年MM月')"
+    else
+      "strftime('%Y年%m月', created_at)"
+    end
+    
     # 1. 月別申請件数（過去6ヶ月）
     @monthly_applications = Application
       .where(created_at: 6.months.ago.beginning_of_month..Time.current.end_of_month)
-      .group(Arel.sql("to_char(created_at, 'YYYY年MM月')"))
-      .order(Arel.sql("to_char(created_at, 'YYYY年MM月')"))
+      .group(Arel.sql(date_format))
+      .order(Arel.sql(date_format))
       .count
     
     # 2. ステータス別申請件数（日本語ラベルに変換）
@@ -76,11 +94,17 @@ class DashboardController < ApplicationController
     
     # 3. 月別売上（過去6ヶ月）
     @monthly_revenue = if defined?(Invoice) && Invoice.column_names.include?('issue_date') && Invoice.column_names.include?('total_amount')
+      invoice_date_format = if postgresql?
+        "to_char(issue_date, 'YYYY年MM月')"
+      else
+        "strftime('%Y年%m月', issue_date)"
+      end
+      
       Invoice
         .where(issue_date: 6.months.ago.beginning_of_month..Time.current.end_of_month)
         .where(status: ['sent', 'paid'])
-        .group(Arel.sql("to_char(issue_date, 'YYYY年MM月')"))
-        .order(Arel.sql("to_char(issue_date, 'YYYY年MM月')"))
+        .group(Arel.sql(invoice_date_format))
+        .order(Arel.sql(invoice_date_format))
         .sum(:total_amount)
     else
       {}
