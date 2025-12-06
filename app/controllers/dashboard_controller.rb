@@ -6,8 +6,8 @@ class DashboardController < ApplicationController
     # データ分析用のデータ - 月別申請件数
     @monthly_applications = Application
       .where(created_at: 6.months.ago.beginning_of_month..Time.current.end_of_month)
-      .group("to_char(created_at, 'YYYY-MM')")
-      .order("to_char(created_at, 'YYYY-MM')")
+      .group(Arel.sql("to_char(created_at, 'YYYY-MM')"))
+      .order(Arel.sql("to_char(created_at, 'YYYY-MM')"))
       .count
       .transform_keys { |date_str| Date.parse("#{date_str}-01").strftime('%Y年%m月') }
     
