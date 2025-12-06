@@ -6,7 +6,8 @@ module ApplicationHelper
     
     weekdays = %w[日 月 火 水 木 金 土]
     weekday = weekdays[date.wday]
-    date.strftime("%Y年%m月%d日(#{weekday})")
+    
+    "#{date.strftime('%-m/%-d')}(#{weekday})"
   end
 
   def status_badge_class(status)

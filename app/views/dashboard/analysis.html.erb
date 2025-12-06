@@ -1,11 +1,11 @@
-<div class="container mx-auto px-4 py-8">
-  <h1 class="text-2xl font-bold mb-6">申請分析ダッシュボード</h1>
+<div class="container mx-auto px-2 sm:px-4 py-6">
+  <h1 class="text-2xl font-bold mb-6 px-2">申請分析ダッシュボード</h1>
   
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8 px-2">
     <!-- 月別申請件数グラフ -->
-    <div class="bg-white p-6 rounded-lg shadow">
-      <h2 class="text-xl font-semibold mb-4">月別申請件数（過去6ヶ月）</h2>
-      <div class="h-64">
+    <div class="bg-white p-4 sm:p-6 rounded-lg shadow overflow-hidden">
+      <h2 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">月別申請件数（過去6ヶ月）</h2>
+      <div class="h-56 sm:h-64 w-full overflow-hidden">
         <%= line_chart @monthly_applications, 
                       colors: ["#4F46E5"],
                       library: {
@@ -18,9 +18,9 @@
     </div>
     
     <!-- ステータス別申請件数 -->
-    <div class="bg-white p-6 rounded-lg shadow">
-      <h2 class="text-xl font-semibold mb-4">ステータス別申請件数</h2>
-      <div class="h-64">
+    <div class="bg-white p-4 sm:p-6 rounded-lg shadow overflow-hidden">
+      <h2 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">ステータス別申請件数</h2>
+      <div class="h-56 sm:h-64 w-full overflow-hidden">
         <%= pie_chart @status_counts, 
                      donut: true,
                      colors: ["#10B981", "#F59E0B", "#EF4444", "#3B82F6"],
@@ -33,7 +33,12 @@
   
   <!-- その他の分析情報があればここに追加 -->
   
-  <div class="mt-8">
-    <%= link_to 'ダッシュボードに戻る', root_path, class: "text-blue-600 hover:text-blue-800" %>
+  <div class="mt-8 px-2">
+    <%= link_to root_path, class: "inline-flex items-center text-blue-600 hover:text-blue-800 font-medium" do %>
+      <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+      ダッシュボードに戻る
+    <% end %>
   </div>
 </div>

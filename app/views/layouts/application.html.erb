@@ -10,12 +10,29 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
-    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <script src="https://unpkg.com/@kurkle/color@0.4.5/dist/color.umd.js"></script>
-    <%= javascript_importmap_tags %>
-    <%= javascript_include_tag "https://www.gstatic.com/charts/loader.js" %>
+    <%= stylesheet_link_tag "tailwind", data: { turbo_track: "reload" } %>
+    <%= stylesheet_link_tag "application", data: { turbo_track: "reload" } %>
+    <script src="https://unpkg.com/@kurkle/color@0.4.5/dist/color.umd.js" data-turbo-track="reload"></script>
+    <%= javascript_importmap_tags "application" %>
+    <%= javascript_include_tag "https://www.gstatic.com/charts/loader.js", data: { turbo_track: "reload" } %>
     <%= javascript_import_module_tag "chartkick" %>
+    <script>
+      // Turbo のページ遷移後にグラフを再初期化
+      document.addEventListener('turbo:load', function() {
+        // Chart.js のグラフを再初期化
+        if (typeof Chart !== 'undefined') {
+          // 既存のグラフインスタンスを破棄
+          Chart.helpers.each(Chart.instances, function(instance) {
+            instance.destroy();
+          });
+          
+          // 新しいグラフを初期化
+          if (typeof initCharts === 'function') {
+            initCharts();
+          }
+        }
+      });
+    </script>
   </head>
 
   <body class="min-h-screen flex">
