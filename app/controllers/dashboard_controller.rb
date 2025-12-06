@@ -58,8 +58,8 @@ class DashboardController < ApplicationController
     # 1. 月別申請件数（過去6ヶ月）
     @monthly_applications = Application
       .where(created_at: 6.months.ago.beginning_of_month..Time.current.end_of_month)
-      .group("to_char(created_at, 'YYYY年MM月')")
-      .order("to_char(created_at, 'YYYY年MM月')")
+      .group(Arel.sql("to_char(created_at, 'YYYY年MM月')"))
+      .order(Arel.sql("to_char(created_at, 'YYYY年MM月')"))
       .count
     
     # 2. ステータス別申請件数（日本語ラベルに変換）
@@ -79,8 +79,8 @@ class DashboardController < ApplicationController
       Invoice
         .where(issue_date: 6.months.ago.beginning_of_month..Time.current.end_of_month)
         .where(status: ['sent', 'paid'])
-        .group("to_char(issue_date, 'YYYY年MM月')")
-        .order("to_char(issue_date, 'YYYY年MM月')")
+        .group(Arel.sql("to_char(issue_date, 'YYYY年MM月')"))
+        .order(Arel.sql("to_char(issue_date, 'YYYY年MM月')"))
         .sum(:total_amount)
     else
       {}
