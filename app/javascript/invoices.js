@@ -54,84 +54,83 @@ const handleChange = (e) => {
 
 // Handle click events
 const handleClick = (e) => {
-  // Price up/down buttons (1000 yen step)
-  const upBtn = e.target.closest('.price-btn-up');
-  const downBtn = e.target.closest('.price-btn-down');
-  
-  if (upBtn || downBtn) {
+  if (e.target.matches('.price-up')) {
     e.preventDefault();
-    const btn = upBtn || downBtn;
-    const item = btn.closest('.nested-fields');
-    if (!item) return;
-    
-    const unitPriceField = item.querySelector('.unit-price-field');
-    const current = parseFloat(unitPriceField?.value) || 0;
-    const step = 1000;
-    
-    if (upBtn) {
-      unitPriceField.value = (current + step).toFixed(0);
-    } else if (downBtn) {
-      unitPriceField.value = Math.max(0, current - step).toFixed(0);
-    }
-    
-    // Trigger change event to update amounts
-    unitPriceField.dispatchEvent(new Event('change', { bubbles: true }));
+    const input = e.target.closest('.input-group').querySelector('input');
+    const currentValue = parseFloat(input.value) || 0;
+    input.value = currentValue + 1000;
+    input.dispatchEvent(new Event('input'));
+  } else if (e.target.matches('.price-down')) {
+    e.preventDefault();
+    const input = e.target.closest('.input-group').querySelector('input');
+    const currentValue = parseFloat(input.value) || 0;
+    input.value = Math.max(0, currentValue - 1000);
+    input.dispatchEvent(new Event('input'));
   }
 };
 
 // Initialize the invoice form
 const initInvoiceForm = () => {
-  // フォームが存在する場合のみ初期化
-  if (!document.querySelector('.nested-fields')) return;
-  
-  // Remove existing event listeners to prevent duplicates
+  // 既存のイベントリスナーを削除
   document.removeEventListener('change', handleChange);
   document.removeEventListener('click', handleClick);
   
-  // Add event listeners
+  // 新しいイベントリスナーを追加
   document.addEventListener('change', handleChange);
   document.addEventListener('click', handleClick);
   
-  // Initialize totals for all existing items
-  document.querySelectorAll('.nested-fields').forEach(item => {
-    calculateAmount(item);
-  });
+  // 初期合計を計算
   updateTotals();
 };
 
-// Debug logging
-console.log('invoices.js loaded');
-
 // Event listener for cocoon
-const handleCocoonInsert = function(e) {
-  console.log('cocoon:after-insert triggered', e.detail[0]);
-  const inserted = e.detail[0];
-  // initialize amount
-  calculateAmount(inserted);
-  updateTotals();};
+const handleCocoonInsert = (e) => {
+  initInvoiceForm();
+  // 新しい行の最初の入力フィールドにフォーカスを当てる
+  const newItem = e.detail[0];
+  const firstInput = newItem.querySelector('input, select, textarea');
+  if (firstInput) firstInput.focus();
+};
 
-const handleCocoonRemove = function() {
-  console.log('cocoon:after-remove triggered');
-  updateTotals();};
+const handleCocoonRemove = () => {
+  updateTotals();
+};
 
-// Initialize everything when the DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOMContentLoaded - initializing invoice form');
+// モジュールとしてエクスポート
+export function initInvoices() {
+  console.log('Initializing invoice form');
   initInvoiceForm();
   
-  // Add cocoon event listeners
-  document.removeEventListener('cocoon:after-insert', handleCocoonInsert);
-  document.removeEventListener('cocoon:after-remove', handleCocoonRemove);
-  
+  // Cocoonのイベントリスナーを設定
   document.addEventListener('cocoon:after-insert', handleCocoonInsert);
-  document.addEventListener('cocoon:after-remove', handleCocoonRemove);
-});
+  document.addEventListener('cocoon:before-remove', handleCocoonRemove);
+  
+  // 動的に追加された要素にもイベントを適用
+  document.addEventListener('turbo:render', () => {
+    initInvoiceForm();
+  });
+}
+
+// 個別の関数もエクスポート
+export {
+  calculateAmount,
+  updateTotals,
+  handleChange,
+  handleClick,
+  initInvoiceForm,
+  handleCocoonInsert,
+  handleCocoonRemove
+};
+
+// デバッグ用
+console.log('invoices.js loaded');
 
 // Also initialize on Turbo navigation
 document.addEventListener('turbo:load', function() {
   console.log('turbo:load - initializing invoice form');
   initInvoiceForm();
 });
+
 document.addEventListener('turbo:render', initInvoiceForm);
 
 // Also initialize now in case the script loads after turbo:load

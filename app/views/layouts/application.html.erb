@@ -13,10 +13,10 @@
     <%= stylesheet_link_tag "tailwind", data: { turbo_track: "reload" } %>
     <%= stylesheet_link_tag "application", data: { turbo_track: "reload" } %>
     <script src="https://unpkg.com/@kurkle/color@0.4.5/dist/color.umd.js" data-turbo-track="reload"></script>
-    <%= javascript_include_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_include_tag "invoices", "data-turbo-track": "reload" %>
-    <%= javascript_include_tag "https://www.gstatic.com/charts/loader.js", data: { turbo_track: "reload" } %>
-    <%= javascript_import_module_tag "chartkick" %>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartkick"></script>
+    <%= javascript_importmap_tags %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
     <script>
       // Turbo のページ遷移後にグラフを再初期化
       document.addEventListener('turbo:load', function() {

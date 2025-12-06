@@ -5,33 +5,92 @@
     <!-- 月別申請件数グラフ -->
     <div class="bg-white p-4 sm:p-6 rounded-lg shadow overflow-hidden">
       <h2 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">月別申請件数（過去6ヶ月）</h2>
-      <div class="h-56 sm:h-64 w-full overflow-hidden">
-        <%= line_chart @monthly_applications, 
-                      colors: ["#4F46E5"],
-                      library: {
-                        title: { display: false },
-                        scales: {
-                          y: { beginAtZero: true, ticks: { stepSize: 1 } }
-                        }
-                      } %>
+      <div class="h-64 w-full">
+        <% if @monthly_applications.any? %>
+          <%= line_chart @monthly_applications, 
+                        colors: ["#4F46E5"],
+                        library: {
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: { display: false },
+                            title: { display: false }
+                          },
+                          scales: {
+                            y: { 
+                              beginAtZero: true, 
+                              ticks: { 
+                                precision: 0,
+                                stepSize: 1
+                              }
+                            }
+                          }
+                        } %>
+        <% else %>
+          <div class="flex items-center justify-center h-full text-gray-500">
+            表示するデータがありません
+          </div>
+        <% end %>
       </div>
     </div>
     
     <!-- ステータス別申請件数 -->
     <div class="bg-white p-4 sm:p-6 rounded-lg shadow overflow-hidden">
       <h2 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">ステータス別申請件数</h2>
-      <div class="h-56 sm:h-64 w-full overflow-hidden">
-        <%= pie_chart @status_counts, 
-                     donut: true,
-                     colors: ["#10B981", "#F59E0B", "#EF4444", "#3B82F6"],
-                     library: {
-                       title: { display: false }
-                     } %>
+      <div class="h-64 w-full">
+        <% if @status_counts.any? %>
+          <%= pie_chart @status_counts, 
+                       donut: true,
+                       colors: ["#10B981", "#F59E0B", "#EF4444", "#3B82F6", "#8B5CF6"],
+                       library: {
+                         responsive: true,
+                         maintainAspectRatio: false,
+                         plugins: {
+                           legend: { 
+                             position: 'right',
+                             labels: {
+                               boxWidth: 12
+                             }
+                           },
+                           title: { display: false }
+                         }
+                       } %>
+        <% else %>
+          <div class="flex items-center justify-center h-full text-gray-500">
+            表示するデータがありません
+          </div>
+        <% end %>
       </div>
     </div>
   </div>
   
-  <!-- その他の分析情報があればここに追加 -->
+  <!-- 月別売上グラフ（データがある場合のみ表示） -->
+  <% if @monthly_revenue.any? %>
+    <div class="bg-white p-4 sm:p-6 rounded-lg shadow overflow-hidden mb-8">
+      <h2 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">月別売上（過去6ヶ月）</h2>
+      <div class="h-64 w-full">
+        <%= column_chart @monthly_revenue,
+                        colors: ["#8B5CF6"],
+                        thousands: ",",
+                        prefix: "¥",
+                        library: {
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: { display: false },
+                            title: { display: false }
+                          },
+                          scales: {
+                            y: {
+                              ticks: {
+                                callback: "function(value) { return '¥' + value.toLocaleString(); }"
+                              }
+                            }
+                          }
+                        } %>
+      </div>
+    </div>
+  <% end %>
   
   <div class="mt-8 px-2">
     <%= link_to root_path, class: "inline-flex items-center text-blue-600 hover:text-blue-800 font-medium" do %>
@@ -42,3 +101,26 @@
     <% end %>
   </div>
 </div>
+
+<!-- グラフのスタイル調整用 -->
+<style>
+  .chartjs-render-monitor {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  .chartjs-size-monitor,
+  .chartjs-size-monitor-expand,
+  .chartjs-size-monitor-shrink {
+    position: absolute;
+    direction: ltr;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    pointer-events: none;
+    visibility: hidden;
+    z-index: -1;
+  }
+</style>

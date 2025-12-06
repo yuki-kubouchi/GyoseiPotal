@@ -4,18 +4,30 @@ import "controllers"
 import * as ActiveStorage from "@rails/activestorage"
 import "jquery"
 import "@nathanvda/cocoon"
-// Chart.jsをグローバルに設定
-import Chart from 'chart.js/auto';
-window.Chart = Chart;
-import "chartkick"
-
-// Invoice-specific behaviors (amount calc, +/- buttons)
-import "./invoices"
+import { initInvoices } from "./invoices"
 
 // グローバルにcocoonを利用可能にする
 window.Cocoon = window.Cocoon || {};
 
-// cocoonの初期化
-ActiveStorage.start()
+// アプリケーション全体の初期化
+function initializeApplication() {
+  // ActiveStorageの初期化
+  ActiveStorage.start();
+  
+  // 請求書フォームの初期化
+  if (document.querySelector('.invoice-form')) {
+    initInvoices();
+  }
+}
+
+// ドキュメントロード時とTurboのページ遷移時に初期化
+document.addEventListener('DOMContentLoaded', initializeApplication);
+document.addEventListener('turbo:load', initializeApplication);
+document.addEventListener('turbo:render', initializeApplication);
+
+// 即時実行もサポート
+if (document.readyState !== 'loading') {
+  initializeApplication();
+}
 
 // グラフ初期化関数はダッシュボードのビューで直接定義
