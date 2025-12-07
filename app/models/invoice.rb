@@ -46,20 +46,11 @@ class Invoice < ApplicationRecord
 
   # 請求書番号を自動採番
   before_validation :generate_invoice_number, on: :create
-  
-  # 保存前に金額を計算
-  before_save :update_amounts
 
   private
 
   def generate_invoice_number
     return if invoice_number.present?
     self.invoice_number = "INV-#{Time.current.strftime('%Y%m%d')}-#{SecureRandom.hex(2).upcase}"
-  end
-  
-  def update_amounts
-    self[:subtotal] = calculate_subtotal
-    self[:tax_amount] = calculate_tax_amount
-    self[:total] = calculate_total
   end
 end

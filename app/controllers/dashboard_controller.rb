@@ -68,16 +68,6 @@ class DashboardController < ApplicationController
       .includes(:customer)
       .order(due_on: :asc)
       .limit(10)
-      
-    if defined?(Invoice)
-      month_range = Time.current.all_month
-      @invoice_total_yen = Invoice
-        .where(issue_date: month_range)
-        .where(status: ['sent', 'paid'])
-        .sum { |invoice| invoice.total.to_i }
-    else
-      @invoice_total_yen = 0
-    end
   end
   
   def analysis

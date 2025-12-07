@@ -80,6 +80,12 @@ class InvoicesController < ApplicationController
     @invoice = Invoice.new(invoice_params)
 
     if @invoice.save
+      # 金額を更新
+      @invoice.update_columns(
+        subtotal: @invoice.calculate_subtotal,
+        tax_amount: @invoice.calculate_tax_amount,
+        total: @invoice.calculate_total
+      )
       redirect_to @invoice, notice: '請求書を作成しました。'
     else
       render :new, status: :unprocessable_entity
@@ -91,6 +97,12 @@ class InvoicesController < ApplicationController
 
   def update
     if @invoice.update(invoice_params)
+      # 金額を更新
+      @invoice.update_columns(
+        subtotal: @invoice.calculate_subtotal,
+        tax_amount: @invoice.calculate_tax_amount,
+        total: @invoice.calculate_total
+      )
       redirect_to @invoice, notice: '請求書を更新しました。'
     else
       render :edit, status: :unprocessable_entity
