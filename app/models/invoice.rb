@@ -14,28 +14,52 @@ class Invoice < ApplicationRecord
   validates :status, presence: true
   validates :tax_rate, presence: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
 
-  # 小計（税抜き）
+  # 小計（税抜き）を計算
+  def calculate_subtotal
+    invoice_items.to_a.sum(&:amount)
+  end
+
+  # 消費税額を計算
+  def calculate_tax_amount
+    (calculate_subtotal * (tax_rate / 100.0)).floor
+  end
+
+  # 合計金額（税込）を計算
+  def calculate_total
+    calculate_subtotal + calculate_tax_amount
+  end
+
+  # 小計（税抜き）- カラムまたは計算値を返す
   def subtotal
-    invoice_items.sum(&:amount)
+    self[:subtotal] || calculate_subtotal
   end
 
-  # 消費税額
+  # 消費税額 - カラムまたは計算値を返す
   def tax_amount
-    (subtotal * (tax_rate / 100.0)).floor
+    self[:tax_amount] || calculate_tax_amount
   end
 
-  # 合計金額（税込）
+  # 合計金額（税込）- カラムまたは計算値を返す
   def total
-    subtotal + tax_amount
+    self[:total] || calculate_total
   end
 
   # 請求書番号を自動採番
   before_validation :generate_invoice_number, on: :create
+  
+  # 保存前に金額を計算
+  before_save :update_amounts
 
   private
 
   def generate_invoice_number
     return if invoice_number.present?
     self.invoice_number = "INV-#{Time.current.strftime('%Y%m%d')}-#{SecureRandom.hex(2).upcase}"
+  end
+  
+  def update_amounts
+    self[:subtotal] = calculate_subtotal
+    self[:tax_amount] = calculate_tax_amount
+    self[:total] = calculate_total
   end
 end

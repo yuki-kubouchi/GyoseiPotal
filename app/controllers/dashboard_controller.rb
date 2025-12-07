@@ -40,6 +40,21 @@ class DashboardController < ApplicationController
     @next_due_application = Application.where.not(due_on: nil).order(due_on: :asc).first
     @approved_this_month = Application.approved.where(due_on: Time.current.all_month).count
     
+    # 今月の請求総額を計算
+    @invoice_total_yen = if defined?(Invoice)
+      # 既存レコードのカラム値を使用し、なければ計算
+      invoices = Invoice.where(issue_date: Time.current.all_month)
+                       .where(status: ['sent', 'paid'])
+                       .includes(:invoice_items)
+      
+      invoices.sum do |inv|
+        # カラムに値があればそれを使用、なければ計算
+        inv[:total]&.positive? ? inv[:total] : inv.calculate_total
+      end
+    else
+      0
+    end
+    
     @top_applications = Application
       .where(status: [Application.statuses[:draft], Application.statuses[:submitted], Application.statuses[:reviewing]])
       .where.not(due_on: nil)

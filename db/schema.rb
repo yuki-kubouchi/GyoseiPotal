@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_06_112844) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_07_112620) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -98,6 +98,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_06_112844) do
     t.date "due_date"
     t.decimal "tax_rate", precision: 5, scale: 2, default: "10.0"
     t.text "notes"
+    t.decimal "subtotal", precision: 10, scale: 2, default: "0.0", null: false
+    t.decimal "tax_amount", precision: 10, scale: 2, default: "0.0", null: false
+    t.decimal "total", precision: 10, scale: 2, default: "0.0", null: false
     t.index ["application_id"], name: "index_invoices_on_application_id"
     t.index ["customer_id"], name: "index_invoices_on_customer_id"
   end
