@@ -47,6 +47,9 @@ gem "jbuilder"
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 
+# CORS for cross-origin requests
+gem 'rack-cors', '~> 1.1', '>= 1.1.1'
+
 # 環境変数管理
 gem 'dotenv-rails', groups: [:development, :test]
 
@@ -63,11 +66,15 @@ gem "bootsnap", require: false
 # Pagination
 gem "kaminari"
 
-# PDF生成用（日本語対応）
+# Charts
+gem 'chartkick'
+gem 'groupdate'
+
+# PDF生成用(日本語対応)
 gem 'prawn'
 gem 'prawn-table'
-gem 'wicked_pdf'  # HTML → PDF変換（日本語対応）
-gem 'wkhtmltopdf-binary'  # wkhtmltopdfバイナリ（macOS対応）
+gem 'wicked_pdf'  # HTML → PDF変換(日本語対応)
+gem 'wkhtmltopdf-binary'  # wkhtmltopdfバイナリ(macOS対応)
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]

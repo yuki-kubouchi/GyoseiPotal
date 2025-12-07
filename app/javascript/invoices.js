@@ -1,6 +1,10 @@
 // Invoice form behaviors: calculate amounts, price +/- buttons (1000 yen)
 // This module is imported by application.js and runs on every Turbo load.
 
+console.log('=== invoices.js loaded (NEW VERSION 2025-12-07) ===');
+
+let eventListenersAdded = false;
+
 // Calculate amount for a nested-fields element
 const calculateAmount = (item) => {
   const quantityInput = item.querySelector('.quantity-field') || item.querySelector('input[name*="[quantity]"]');
@@ -18,12 +22,21 @@ const calculateAmount = (item) => {
 // Update all totals
 const updateTotals = () => {
   let subtotal = 0;
-  document.querySelectorAll('.nested-fields:not([style*="display: none"])').forEach(item => {
+  const visibleItems = document.querySelectorAll('.nested-fields:not([style*="display: none"])');
+  
+  visibleItems.forEach(item => {
+    const destroyField = item.querySelector('.destroy-field');
+    // 削除予定の項目はスキップ
+    if (destroyField && destroyField.value === '1') return;
+    
     subtotal += calculateAmount(item);
   });
+  
   // update subtotal display if present
   const subtotalEl = document.querySelector('.subtotal-amount');
-  if (subtotalEl) subtotalEl.textContent = Math.round(subtotal).toLocaleString();
+  if (subtotalEl) {
+    subtotalEl.textContent = Math.round(subtotal).toLocaleString();
+  }
   
   // Update tax if needed
   const taxRate = parseFloat(document.querySelector('#invoice_tax_rate')?.value) || 0;
@@ -35,6 +48,8 @@ const updateTotals = () => {
   
   if (taxEl) taxEl.textContent = Math.round(taxAmount).toLocaleString();
   if (totalEl) totalEl.textContent = Math.round(total).toLocaleString();
+  
+  console.log('Totals updated:', { subtotal, taxRate, taxAmount, total });
 };
 
 // Handle change events
@@ -54,30 +69,37 @@ const handleChange = (e) => {
 
 // Handle click events
 const handleClick = (e) => {
-  if (e.target.matches('.price-up')) {
+  // ボタンまたはその子要素(SVG)がクリックされた場合
+  const upButton = e.target.closest('.price-btn-up');
+  const downButton = e.target.closest('.price-btn-down');
+  
+  if (upButton) {
     e.preventDefault();
-    const input = e.target.closest('.input-group').querySelector('input');
-    const currentValue = parseFloat(input.value) || 0;
-    input.value = currentValue + 1000;
-    input.dispatchEvent(new Event('input'));
-  } else if (e.target.matches('.price-down')) {
+    const container = upButton.closest('.flex.gap-1').parentElement;
+    const input = container.querySelector('input.unit-price-field');
+    if (input) {
+      const currentValue = parseFloat(input.value) || 0;
+      input.value = currentValue + 1000;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  } else if (downButton) {
     e.preventDefault();
-    const input = e.target.closest('.input-group').querySelector('input');
-    const currentValue = parseFloat(input.value) || 0;
-    input.value = Math.max(0, currentValue - 1000);
-    input.dispatchEvent(new Event('input'));
+    const container = downButton.closest('.flex.gap-1').parentElement;
+    const input = container.querySelector('input.unit-price-field');
+    if (input) {
+      const currentValue = parseFloat(input.value) || 0;
+      input.value = Math.max(0, currentValue - 1000);
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   }
 };
 
 // Initialize the invoice form
 const initInvoiceForm = () => {
-  // 既存のイベントリスナーを削除
-  document.removeEventListener('change', handleChange);
-  document.removeEventListener('click', handleClick);
+  const form = document.querySelector('.invoice-form');
+  if (!form) return;
   
-  // 新しいイベントリスナーを追加
-  document.addEventListener('change', handleChange);
-  document.addEventListener('click', handleClick);
+  console.log('Initializing invoice form');
   
   // 初期合計を計算
   updateTotals();
@@ -85,57 +107,38 @@ const initInvoiceForm = () => {
 
 // Event listener for cocoon
 const handleCocoonInsert = (e) => {
-  initInvoiceForm();
+  console.log('Cocoon insert event');
+  updateTotals();
   // 新しい行の最初の入力フィールドにフォーカスを当てる
   const newItem = e.detail[0];
-  const firstInput = newItem.querySelector('input, select, textarea');
-  if (firstInput) firstInput.focus();
+  if (newItem) {
+    const firstInput = newItem.querySelector('input:not([type="hidden"]), select, textarea');
+    if (firstInput) firstInput.focus();
+  }
 };
 
 const handleCocoonRemove = () => {
+  console.log('Cocoon remove event');
   updateTotals();
 };
 
 // モジュールとしてエクスポート
 export function initInvoices() {
-  console.log('Initializing invoice form');
+  console.log('initInvoices called');
+  
+  // イベントリスナーを1回だけ登録
+  if (!eventListenersAdded) {
+    console.log('Adding event listeners');
+    document.addEventListener('change', handleChange);
+    document.addEventListener('click', handleClick);
+    document.addEventListener('cocoon:after-insert', handleCocoonInsert);
+    document.addEventListener('cocoon:before-remove', handleCocoonRemove);
+    eventListenersAdded = true;
+  }
+  
+  // フォームを初期化
   initInvoiceForm();
-  
-  // Cocoonのイベントリスナーを設定
-  document.addEventListener('cocoon:after-insert', handleCocoonInsert);
-  document.addEventListener('cocoon:before-remove', handleCocoonRemove);
-  
-  // 動的に追加された要素にもイベントを適用
-  document.addEventListener('turbo:render', () => {
-    initInvoiceForm();
-  });
 }
 
-// 個別の関数もエクスポート
-export {
-  calculateAmount,
-  updateTotals,
-  handleChange,
-  handleClick,
-  initInvoiceForm,
-  handleCocoonInsert,
-  handleCocoonRemove
-};
-
-// デバッグ用
-console.log('invoices.js loaded');
-
-// Also initialize on Turbo navigation
-document.addEventListener('turbo:load', function() {
-  console.log('turbo:load - initializing invoice form');
-  initInvoiceForm();
-});
-
-document.addEventListener('turbo:render', initInvoiceForm);
-
-// Also initialize now in case the script loads after turbo:load
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initInvoiceForm);
-} else {
-  initInvoiceForm();
-}
+// デフォルトエクスポート
+export default initInvoices;

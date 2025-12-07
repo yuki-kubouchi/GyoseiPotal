@@ -3,12 +3,18 @@
 # Version of your assets, change this if you want to expire all your assets.
 Rails.application.config.assets.version = "1.0"
 
-# Add additional assets to the asset load path.
-# Rails.application.config.assets.paths << Emoji.images_path
+# アセットのデバッグを有効にする
+Rails.application.config.assets.debug = true
 
-# Precompile additional assets.
-# application.js, application.css, and all non-JS/CSS in the app/assets
-# folder are already added.
-# Rails.application.config.assets.precompile += %w( admin.js admin.css )
+# アセットのダイジェストを有効にする
+Rails.application.config.assets.digest = true
+
+# アセットのコンパイルを有効にする
+Rails.application.config.assets.compile = true
+
+# プリコンパイル対象のアセットを指定
+Rails.application.config.assets.precompile += %w( application.css )
+
+# フォントのパスを追加
 Rails.application.config.assets.paths << Rails.root.join('app', 'assets', 'fonts')
 Rails.application.config.assets.precompile += %w( .ttf )
