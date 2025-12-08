@@ -5,13 +5,13 @@ namespace :invoices do
     
     count = 0
     Invoice.find_each do |invoice|
-      invoice.send(:update_amounts)
-      if invoice.save(validate: false)
-        count += 1
-        print "."
-      else
-        puts "\n請求書 #{invoice.invoice_number} の更新に失敗しました"
-      end
+      invoice.update_columns(
+        subtotal: invoice.calculate_subtotal,
+        tax_amount: invoice.calculate_tax_amount,
+        total: invoice.calculate_total
+      )
+      count += 1
+      print "."
     end
     
     puts "\n#{count} 件の請求書を更新しました"

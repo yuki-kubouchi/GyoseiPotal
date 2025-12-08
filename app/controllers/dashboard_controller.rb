@@ -42,15 +42,10 @@ class DashboardController < ApplicationController
     
     # 今月の請求総額を計算
     @invoice_total_yen = if defined?(Invoice)
-      # 既存レコードのカラム値を使用し、なければ計算
-      invoices = Invoice.where(issue_date: Time.current.all_month)
-                       .where(status: ['sent', 'paid'])
-                       .includes(:invoice_items)
-      
-      invoices.sum do |inv|
-        # カラムに値があればそれを使用、なければ計算
-        inv[:total]&.positive? ? inv[:total] : inv.calculate_total
-      end
+      # 既存レコードのカラム値を使用
+      Invoice.where(issue_date: Time.current.all_month)
+             .where(status: ['sent', 'paid'])
+             .sum(:total)
     else
       0
     end

@@ -1,7 +1,7 @@
 class InvoicesController < ApplicationController
   require 'prawn'
   require 'prawn/table'
-  before_action :set_invoice, only: [:show, :edit, :update, :destroy, :download]
+  before_action :set_invoice, only: [:show, :edit, :update, :destroy, :download, :download_estimate, :download_receipt]
 
   def index
     @q = params[:q].to_s.strip
@@ -125,7 +125,6 @@ class InvoicesController < ApplicationController
   end
   
   def download_estimate
-    @invoice = Invoice.find(params[:id])
     respond_to do |format|
       format.pdf do
         render pdf: "見積書_#{@invoice.invoice_number}",
@@ -137,7 +136,6 @@ class InvoicesController < ApplicationController
   end
   
   def download_receipt
-    @invoice = Invoice.find(params[:id])
     respond_to do |format|
       format.pdf do
         render pdf: "領収書_#{@invoice.invoice_number}",
@@ -151,7 +149,7 @@ class InvoicesController < ApplicationController
   private
 
   def set_invoice
-    @invoice = Invoice.find(params[:id])
+    @invoice = Invoice.includes(:customer, :application, :invoice_items).find(params[:id])
   end
 
   def invoice_params
