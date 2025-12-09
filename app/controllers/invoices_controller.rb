@@ -115,10 +115,10 @@ class InvoicesController < ApplicationController
   end
 
   def download
-    # wicked_pdf用にインスタンス変数を設定
-    @customer = @invoice.customer
-    @application = @invoice.application
-    @items = @invoice.invoice_items.to_a
+    # wicked_pdf用にインスタンス変数を設定（明示的にロード）
+    @customer = Customer.find(@invoice.customer_id)
+    @application = Application.find(@invoice.application_id)
+    @items = InvoiceItem.where(invoice_id: @invoice.id).to_a
     
     send_data WickedPdf.new.pdf_from_string(
       render_to_string(
@@ -138,10 +138,13 @@ class InvoicesController < ApplicationController
     Rails.logger.info "Application: #{@invoice.application.inspect}"
     Rails.logger.info "Items count: #{@invoice.invoice_items.count}"
     
-    # wicked_pdf用にインスタンス変数を設定
-    @customer = @invoice.customer
-    @application = @invoice.application
-    @items = @invoice.invoice_items.to_a
+    # wicked_pdf用にインスタンス変数を設定（明示的にロード）
+    @customer = Customer.find(@invoice.customer_id)
+    @application = Application.find(@invoice.application_id)
+    @items = InvoiceItem.where(invoice_id: @invoice.id).to_a
+    
+    Rails.logger.info "After reload - Customer: #{@customer.inspect}"
+    Rails.logger.info "After reload - Application: #{@application.inspect}"
     
     respond_to do |format|
       format.pdf do
@@ -153,10 +156,10 @@ class InvoicesController < ApplicationController
   end
   
   def download_receipt
-    # wicked_pdf用にインスタンス変数を設定
-    @customer = @invoice.customer
-    @application = @invoice.application
-    @items = @invoice.invoice_items.to_a
+    # wicked_pdf用にインスタンス変数を設定（明示的にロード）
+    @customer = Customer.find(@invoice.customer_id)
+    @application = Application.find(@invoice.application_id)
+    @items = InvoiceItem.where(invoice_id: @invoice.id).to_a
     
     respond_to do |format|
       format.pdf do
@@ -170,7 +173,7 @@ class InvoicesController < ApplicationController
   private
 
   def set_invoice
-    @invoice = Invoice.includes(:customer, :application, :invoice_items).find(params[:id])
+    @invoice = Invoice.eager_load(:customer, :application, :invoice_items).find(params[:id])
   end
 
   def invoice_params
