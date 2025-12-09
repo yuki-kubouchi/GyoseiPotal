@@ -15,3 +15,6 @@ bundle exec rails invoices:recalculate_amounts
 
 echo "=== Checking production data ==="
 bundle exec rails production:check_data
+
+echo "=== Fixing production data ==="
+bundle exec rails production:fix_data
