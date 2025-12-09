@@ -16,8 +16,5 @@ bundle exec rails db:seed
 # This ensures all invoices have their amounts properly calculated and stored
 bundle exec rails invoices:recalculate_amounts
 
-echo "=== Checking production data ==="
-bundle exec rails production:check_data
-
-echo "=== Fixing production data ==="
-bundle exec rails production:fix_data
+echo "=== Diagnosing PDF data issue ==="
+bundle exec rails production:diagnose_pdf
