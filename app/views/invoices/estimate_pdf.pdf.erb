@@ -125,6 +125,13 @@
   </style>
 </head>
 <body>
+  <%
+    # wicked_pdf用に明示的にデータをロード
+    pdf_customer = Customer.find_by(id: @invoice.customer_id)
+    pdf_application = Application.find_by(id: @invoice.application_id)
+    pdf_items = InvoiceItem.where(invoice_id: @invoice.id).to_a
+  %>
+  
   <!-- DEBUG: PDF Template Data -->
   <div style="background-color: #ffff00; padding: 10px; margin-bottom: 10px; font-size: 10pt; border: 2px solid red;">
     <strong>DEBUG INFO:</strong><br>
@@ -136,7 +143,7 @@
     <% rescue => e %>
       Template query error: <%= e.message %><br>
     <% end %>
-    @customer var: <%= @customer&.name %> / <%= @customer&.company_name %><br>
+    pdf_customer var: <%= pdf_customer&.name %> / <%= pdf_customer&.company_name %><br>
     Application ID: <%= @invoice.application_id %><br>
     <% begin %>
       <% template_app = Application.find_by(id: @invoice.application_id) %>
@@ -144,7 +151,9 @@
     <% rescue => e %>
       Template query app error: <%= e.message %><br>
     <% end %>
-    @application var: <%= @application&.title %><br>
+    pdf_application var: <%= pdf_application&.title %><br>
+    pdf_customer: <%= pdf_customer&.name %> / <%= pdf_customer&.company_name %><br>
+    pdf_application: <%= pdf_application&.title %><br>
     Items: <%= @invoice.invoice_items.count %><br>
     Total: <%= @invoice.total %>
   </div>
@@ -180,14 +189,14 @@
         <td class="left-col">
           <div class="box">
             <div class="box-title">見積先</div>
-            <% if @customer&.company_name.present? %>
-              <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;"><%= @customer.company_name %> 御中</div>
+            <% if pdf_customer&.company_name.present? %>
+              <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;"><%= pdf_customer.company_name %> 御中</div>
             <% else %>
-              <div style="margin-bottom: 4px; font-size: 14px;"><%= @customer&.name %> 様</div>
+              <div style="margin-bottom: 4px; font-size: 14px;"><%= pdf_customer&.name %> 様</div>
             <% end %>
-            <% if @application.present? %>
+            <% if pdf_application.present? %>
               <div style="margin-bottom: 2px; font-size: 13px;">
-                <span style="font-weight: bold;">案件：</span><%= @application.title %>
+                <span style="font-weight: bold;">案件：</span><%= pdf_application.title %>
               </div>
             <% end %>
           </div>
@@ -241,7 +250,7 @@
               </tr>
             </thead>
             <tbody>
-              <% @items.each do |item| %>
+              <% pdf_items.each do |item| %>
                 <tr>
                   <td><%= item.description %></td>
                   <td style="text-align: right;"><%= item.quantity %></td>
