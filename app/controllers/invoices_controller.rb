@@ -138,29 +138,41 @@ class InvoicesController < ApplicationController
     Rails.logger.info "Application: #{@invoice.application.inspect}"
     Rails.logger.info "Items count: #{@invoice.invoice_items.count}"
     
-    # wicked_pdf用に文字列として明示的に抽出（エンコーディング強制）
-    @customer_name = @invoice.customer.name.dup.force_encoding('UTF-8').encode('UTF-8', invalid: :replace, undef: :replace)
-    @customer_company = @invoice.customer.company_name.dup.force_encoding('UTF-8').encode('UTF-8', invalid: :replace, undef: :replace)
-    @customer_code = @invoice.customer.code.to_s
-    @customer_kana = @invoice.customer.kana.to_s
-    @customer_address = @invoice.customer.address.to_s
-    @customer_phone = @invoice.customer.phone.to_s
-    @customer_email = @invoice.customer.email.to_s
+    # 生SQLで直接データを取得（Active Recordのエンコーディング問題を回避）
+    customer_data = ActiveRecord::Base.connection.execute(
+      "SELECT name, company_name, code, kana, address, phone, email FROM customers WHERE id = #{@invoice.customer_id}"
+    ).first
     
-    @application_title = @invoice.application.title.dup.force_encoding('UTF-8').encode('UTF-8', invalid: :replace, undef: :replace)
+    application_data = ActiveRecord::Base.connection.execute(
+      "SELECT title FROM applications WHERE id = #{@invoice.application_id}"
+    ).first
     
-    @invoice_items_array = @invoice.invoice_items.map do |item|
+    items_data = ActiveRecord::Base.connection.execute(
+      "SELECT description, quantity, unit_price, amount FROM invoice_items WHERE invoice_id = #{@invoice.id} ORDER BY id"
+    )
+    
+    @customer_name = customer_data['name'].to_s
+    @customer_company = customer_data['company_name'].to_s
+    @customer_code = customer_data['code'].to_s
+    @customer_kana = customer_data['kana'].to_s
+    @customer_address = customer_data['address'].to_s
+    @customer_phone = customer_data['phone'].to_s
+    @customer_email = customer_data['email'].to_s
+    
+    @application_title = application_data['title'].to_s
+    
+    @invoice_items_array = items_data.map do |item|
       {
-        description: item.description.dup.force_encoding('UTF-8').encode('UTF-8', invalid: :replace, undef: :replace),
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        amount: item.amount
+        description: item['description'].to_s,
+        quantity: item['quantity'].to_f,
+        unit_price: item['unit_price'].to_f,
+        amount: item['amount'].to_f
       }
     end
     
-    Rails.logger.info "Extracted strings - Customer: #{@customer_name} / #{@customer_company}"
-    Rails.logger.info "Extracted strings - Application: #{@application_title}"
-    Rails.logger.info "String encodings - name: #{@customer_name.encoding}, company: #{@customer_company.encoding}"
+    Rails.logger.info "Extracted via SQL - Customer: #{@customer_name} / #{@customer_company}"
+    Rails.logger.info "Extracted via SQL - Application: #{@application_title}"
+    Rails.logger.info "Name bytes: #{@customer_name.bytes.take(20).inspect}"
     
     respond_to do |format|
       format.pdf do
