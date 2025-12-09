@@ -12,3 +12,6 @@ bundle exec rails db:migrate
 # Recalculate invoice amounts after migration
 # This ensures all invoices have their amounts properly calculated and stored
 bundle exec rails invoices:recalculate_amounts
+
+echo "=== Checking production data ==="
+bundle exec rails production:check_data
