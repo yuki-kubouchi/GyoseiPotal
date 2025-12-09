@@ -126,32 +126,11 @@
 </head>
 <body>
   <%
-    # wicked_pdf用に明示的にデータをロード
-    pdf_customer = Customer.find_by(id: @invoice.customer_id)
-    pdf_application = Application.find_by(id: @invoice.application_id)
-    pdf_items = InvoiceItem.where(invoice_id: @invoice.id).to_a
+    # コントローラーで eager_load されたデータを使用
+    pdf_customer = @invoice.customer
+    pdf_application = @invoice.application
+    pdf_items = @invoice.invoice_items
   %>
-  
-  <!-- DEBUG: PDF Template Data -->
-  <div style="background-color: #ffff00; padding: 10px; margin-bottom: 10px; font-size: 10pt; border: 2px solid red;">
-    <strong>DEBUG INFO:</strong><br>
-    Invoice ID: <%= @invoice.id %><br>
-    Customer ID: <%= @invoice.customer_id %><br>
-    pdf_customer nil?: <%= pdf_customer.nil? %><br>
-    <% if pdf_customer %>
-      pdf_customer.name: [<%= pdf_customer.name.inspect %>]<br>
-      pdf_customer.company_name: [<%= pdf_customer.company_name.inspect %>]<br>
-      pdf_customer.name.encoding: <%= pdf_customer.name.encoding %><br>
-    <% end %>
-    Application ID: <%= @invoice.application_id %><br>
-    pdf_application nil?: <%= pdf_application.nil? %><br>
-    <% if pdf_application %>
-      pdf_application.title: [<%= pdf_application.title.inspect %>]<br>
-      pdf_application.title.encoding: <%= pdf_application.title.encoding %><br>
-    <% end %>
-    Items: <%= @invoice.invoice_items.count %><br>
-    Total: <%= @invoice.total %>
-  </div>
   
   <div class="container">
     <!-- Header -->
