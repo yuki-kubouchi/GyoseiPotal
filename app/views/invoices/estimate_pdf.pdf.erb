@@ -125,6 +125,18 @@
   </style>
 </head>
 <body>
+  <!-- DEBUG: Template Variables -->
+  <div style="background-color: #ffff00; padding: 10px; margin: 10px; border: 2px solid red;">
+    <strong>DEBUG - Template Variables:</strong><br>
+    @customer_name = [<%= @customer_name.inspect %>]<br>
+    @customer_company = [<%= @customer_company.inspect %>]<br>
+    @application_title = [<%= @application_title.inspect %>]<br>
+    @invoice_items_array.length = <%= @invoice_items_array.length %><br>
+    <% if @invoice_items_array.any? %>
+      First item description = [<%= @invoice_items_array.first[:description].inspect %>]<br>
+    <% end %>
+  </div>
+  
   <div class="container">
     <!-- Header -->
     <div class="header">
