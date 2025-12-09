@@ -137,23 +137,18 @@
     <strong>DEBUG INFO:</strong><br>
     Invoice ID: <%= @invoice.id %><br>
     Customer ID: <%= @invoice.customer_id %><br>
-    <% begin %>
-      <% template_customer = Customer.find_by(id: @invoice.customer_id) %>
-      Template query customer: <%= template_customer&.name %> / <%= template_customer&.company_name %><br>
-    <% rescue => e %>
-      Template query error: <%= e.message %><br>
+    pdf_customer nil?: <%= pdf_customer.nil? %><br>
+    <% if pdf_customer %>
+      pdf_customer.name: [<%= pdf_customer.name.inspect %>]<br>
+      pdf_customer.company_name: [<%= pdf_customer.company_name.inspect %>]<br>
+      pdf_customer.name.encoding: <%= pdf_customer.name.encoding %><br>
     <% end %>
-    pdf_customer var: <%= pdf_customer&.name %> / <%= pdf_customer&.company_name %><br>
     Application ID: <%= @invoice.application_id %><br>
-    <% begin %>
-      <% template_app = Application.find_by(id: @invoice.application_id) %>
-      Template query app: <%= template_app&.title %><br>
-    <% rescue => e %>
-      Template query app error: <%= e.message %><br>
+    pdf_application nil?: <%= pdf_application.nil? %><br>
+    <% if pdf_application %>
+      pdf_application.title: [<%= pdf_application.title.inspect %>]<br>
+      pdf_application.title.encoding: <%= pdf_application.title.encoding %><br>
     <% end %>
-    pdf_application var: <%= pdf_application&.title %><br>
-    pdf_customer: <%= pdf_customer&.name %> / <%= pdf_customer&.company_name %><br>
-    pdf_application: <%= pdf_application&.title %><br>
     Items: <%= @invoice.invoice_items.count %><br>
     Total: <%= @invoice.total %>
   </div>
