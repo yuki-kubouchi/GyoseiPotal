@@ -45,4 +45,52 @@ namespace :diagnose do
       puts "  該当する請求書がありません"
     end
   end
+  
+  desc "Test PDF data loading"
+  task check_pdf_data: :environment do
+    puts "=== PDF生成用データ確認 ==="
+    puts ""
+    
+    invoice = Invoice.includes(:customer, :application, :invoice_items).find(4)
+    
+    puts "Invoice ##{invoice.id}:"
+    puts "  invoice_number: #{invoice.invoice_number}"
+    puts "  issue_date: #{invoice.issue_date}"
+    puts "  status: #{invoice.status}"
+    puts ""
+    
+    puts "Customer data:"
+    if invoice.customer.present?
+      puts "  ✓ customer loaded: #{invoice.customer.name}"
+      puts "  company_name: #{invoice.customer.company_name}"
+      puts "  email: #{invoice.customer.email}"
+    else
+      puts "  ✗ customer is nil"
+    end
+    puts ""
+    
+    puts "Application data:"
+    if invoice.application.present?
+      puts "  ✓ application loaded: #{invoice.application.title}"
+      puts "  status: #{invoice.application.status}"
+    else
+      puts "  ✗ application is nil"
+    end
+    puts ""
+    
+    puts "Invoice items (#{invoice.invoice_items.count} items):"
+    if invoice.invoice_items.any?
+      invoice.invoice_items.each do |item|
+        puts "  - #{item.description}: #{item.quantity} × ¥#{item.unit_price} = ¥#{item.amount}"
+      end
+    else
+      puts "  ✗ no invoice items found"
+    end
+    puts ""
+    
+    puts "Calculated amounts:"
+    puts "  subtotal: ¥#{invoice.subtotal}"
+    puts "  tax (#{invoice.tax_rate}%): ¥#{invoice.tax_amount}"
+    puts "  total: ¥#{invoice.total}"
+  end
 end
