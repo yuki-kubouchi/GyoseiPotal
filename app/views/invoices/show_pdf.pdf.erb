@@ -10,7 +10,7 @@
       box-sizing: border-box;
     }
     body {
-      font-family: 'Noto Sans JP', 'Hiragino Sans', Arial, sans-serif;
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
       font-size: 12pt;
       color: #333;
       line-height: 1.2;
@@ -152,14 +152,14 @@
         <td class="left-col">
           <div class="box">
             <div class="box-title">請求先</div>
-            <% if invoice.customer&.company_name.present? %>
-              <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;"><%= invoice.customer.company_name %> 御中</div>
+            <% if customer&.company_name.present? %>
+              <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;"><%= customer.company_name %> 御中</div>
             <% else %>
-              <div style="margin-bottom: 4px; font-size: 14px;"><%= invoice.customer&.name %> 様</div>
+              <div style="margin-bottom: 4px; font-size: 14px;"><%= customer&.name %> 様</div>
             <% end %>
-            <% if invoice.application.present? %>
+            <% if application.present? %>
               <div style="margin-bottom: 2px; font-size: 13px;">
-                <span style="font-weight: bold;">案件：</span><%= invoice.application.title %>
+                <span style="font-weight: bold;">案件：</span><%= application.title %>
               </div>
             <% end %>
           </div>
@@ -212,7 +212,7 @@
               </tr>
             </thead>
             <tbody>
-              <% invoice.invoice_items.each_with_index do |item, index| %>
+              <% items.each_with_index do |item, index| %>
               <tr style="background-color: <%= index.even? ? '#ffffff' : '#f8f8f8' %>;">
                 <td style="text-align: center;"><%= index + 1 %></td>
                 <td style="text-align: left;"><%= item.description %></td>

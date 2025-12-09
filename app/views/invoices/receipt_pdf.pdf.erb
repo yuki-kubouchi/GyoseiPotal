@@ -10,7 +10,7 @@
       box-sizing: border-box;
     }
     body {
-      font-family: 'Noto Sans JP', 'Hiragino Sans', Arial, sans-serif;
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
       font-size: 12pt;
       color: #333;
       line-height: 1.2;
@@ -164,15 +164,15 @@
         <td class="left-col">
           <div class="box">
             <div class="box-title">お客様情報</div>
-            <% if invoice.customer&.company_name.present? %>
-              <div style="margin-bottom: 10px; font-size: 16px; font-weight: bold;"><%= invoice.customer.company_name %></div>
+            <% if customer&.company_name.present? %>
+              <div style="margin-bottom: 10px; font-size: 16px; font-weight: bold;"><%= customer.company_name %></div>
               <div style="margin-bottom: 5px;">御中</div>
             <% else %>
-              <div style="margin-bottom: 10px; font-size: 16px; font-weight: bold;"><%= invoice.customer&.name %> 様</div>
+              <div style="margin-bottom: 10px; font-size: 16px; font-weight: bold;"><%= customer&.name %> 様</div>
             <% end %>
-            <% if invoice.application.present? %>
+            <% if application.present? %>
               <div style="margin-top: 10px; font-size: 13px;">
-                <div>ご利用サービス: <%= invoice.application.title %></div>
+                <div>ご利用サービス: <%= application.title %></div>
               </div>
             <% end %>
           </div>
@@ -212,7 +212,7 @@
       <!-- 但し書き -->
       <div class="stamp"></div>
       <div class="receipt-details">
-        <p>但し、<%= invoice.invoice_items.map(&:description).join('、') %>として</p>
+        <p>但し、<%= items.map(&:description).join('、') %>として</p>
         <p>上記正に領収いたしました。</p>
         <p style="margin-top: 20px;"><%= Date.current.strftime('%-m月%-d日') %> 受領</p>
       </div>
@@ -229,7 +229,7 @@
           </tr>
         </thead>
         <tbody>
-          <% invoice.invoice_items.each do |item| %>
+          <% items.each do |item| %>
             <tr>
               <td style="border: 1px solid #e0e0e0; padding: 8px;"><%= item.description %></td>
               <td style="border: 1px solid #e0e0e0; padding: 8px; text-align: right;"><%= number_with_delimiter(item.unit_price.to_i) %></td>
