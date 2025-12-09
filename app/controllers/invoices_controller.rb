@@ -125,6 +125,12 @@ class InvoicesController < ApplicationController
   end
   
   def download_estimate
+    Rails.logger.info "=== PDF Download Debug ==="
+    Rails.logger.info "Invoice ID: #{@invoice.id}"
+    Rails.logger.info "Customer: #{@invoice.customer.inspect}"
+    Rails.logger.info "Application: #{@invoice.application.inspect}"
+    Rails.logger.info "Items count: #{@invoice.invoice_items.count}"
+    
     respond_to do |format|
       format.pdf do
         render pdf: "見積書_#{@invoice.invoice_number}",
