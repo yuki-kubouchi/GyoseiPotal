@@ -138,11 +138,11 @@
         <td colspan="3" style="padding-bottom: 4px;">
           <div class="info-row">
             <span class="info-label">請求書番号</span>
-            <span class="info-value"><%= invoice.invoice_number %></span>
+            <span class="info-value"><%= @invoice.invoice_number %></span>
           </div>
           <div class="info-row">
             <span class="info-label">発行日</span>
-            <span class="info-value"><%= invoice.issue_date.strftime('%Y年%m月%d日') %></span>
+            <span class="info-value"><%= @invoice.issue_date.strftime('%Y年%m月%d日') %></span>
           </div>
         </td>
       </tr>
@@ -152,14 +152,14 @@
         <td class="left-col">
           <div class="box">
             <div class="box-title">請求先</div>
-            <% if customer&.company_name.present? %>
-              <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;"><%= customer.company_name %> 御中</div>
+            <% if @customer&.company_name.present? %>
+              <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;"><%= @customer.company_name %> 御中</div>
             <% else %>
-              <div style="margin-bottom: 4px; font-size: 14px;"><%= customer&.name %> 様</div>
+              <div style="margin-bottom: 4px; font-size: 14px;"><%= @customer&.name %> 様</div>
             <% end %>
-            <% if application.present? %>
+            <% if @application.present? %>
               <div style="margin-bottom: 2px; font-size: 13px;">
-                <span style="font-weight: bold;">案件：</span><%= application.title %>
+                <span style="font-weight: bold;">案件：</span><%= @application.title %>
               </div>
             <% end %>
           </div>
@@ -212,7 +212,7 @@
               </tr>
             </thead>
             <tbody>
-              <% items.each_with_index do |item, index| %>
+              <% @items.each_with_index do |item, index| %>
               <tr style="background-color: <%= index.even? ? '#ffffff' : '#f8f8f8' %>;">
                 <td style="text-align: center;"><%= index + 1 %></td>
                 <td style="text-align: left;"><%= item.description %></td>
@@ -230,7 +230,7 @@
         <td class="right-col" style="padding-top: 4px; padding-bottom: 4px; text-align: right;">
           <div class="total-box" style="display: inline-block; text-align: right;">
             <div class="total-row">小計　<%= number_with_delimiter(invoice.subtotal.to_i) %> 円</div>
-            <div class="total-row">消費税 (<%= invoice.tax_rate %>%)　<%= number_with_delimiter(invoice.tax_amount.to_i) %> 円</div>
+            <div class="total-row">消費税 (<%= @invoice.tax_rate %>%)　<%= number_with_delimiter(invoice.tax_amount.to_i) %> 円</div>
             <div class="total-row grand-total">合計金額　<%= number_with_delimiter(invoice.total.to_i) %> 円</div>
           </div>
         </td>
@@ -263,19 +263,19 @@
             </div>
             <div class="info-row">
               <span class="info-label">支払期日</span>
-              <span class="info-value"><strong><%= invoice.due_date.strftime('%Y年%m月%d日') %></strong></span>
+              <span class="info-value"><strong><%= @invoice.due_date.strftime('%Y年%m月%d日') %></strong></span>
             </div>
           </div>
         </td>
       </tr>
 
       <!-- 備考行 -->
-      <% if invoice.notes.present? %>
+      <% if @invoice.notes.present? %>
       <tr>
         <td colspan="3" style="padding-top: 4px; padding-bottom: 4px;">
           <div class="section-title">備考</div>
           <div style="padding: 5px; background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 13px; line-height: 1.3; white-space: pre-line;">
-            <%= invoice.notes.gsub(/\r\n|\r|\n/, '<br>').html_safe %>
+            <%= @invoice.notes.gsub(/\r\n|\r|\n/, '<br>').html_safe %>
           </div>
         </td>
       </tr>
@@ -285,7 +285,7 @@
       <tr>
         <td colspan="3" style="padding-top: 4px;">
           <div class="footer">
-            発行日: <%= invoice.issue_date.strftime('%Y年%m月%d日') %>
+            発行日: <%= @invoice.issue_date.strftime('%Y年%m月%d日') %>
           </div>
         </td>
       </tr>

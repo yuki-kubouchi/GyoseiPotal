@@ -115,20 +115,14 @@ class InvoicesController < ApplicationController
   end
 
   def download
-    # wicked_pdf用にassociationを事前にロード
-    customer = @invoice.customer
-    application = @invoice.application
-    items = @invoice.invoice_items.to_a
+    # wicked_pdf用にインスタンス変数を設定
+    @customer = @invoice.customer
+    @application = @invoice.application
+    @items = @invoice.invoice_items.to_a
     
     send_data WickedPdf.new.pdf_from_string(
       render_to_string(
-        template: 'invoices/show_pdf',
-        locals: { 
-          invoice: @invoice,
-          customer: customer,
-          application: application,
-          items: items
-        }
+        template: 'invoices/show_pdf'
       ),
       encoding: "UTF-8"
     ),
@@ -144,42 +138,30 @@ class InvoicesController < ApplicationController
     Rails.logger.info "Application: #{@invoice.application.inspect}"
     Rails.logger.info "Items count: #{@invoice.invoice_items.count}"
     
-    # wicked_pdf用にassociationを事前にロード
-    customer = @invoice.customer
-    application = @invoice.application
-    items = @invoice.invoice_items.to_a
+    # wicked_pdf用にインスタンス変数を設定
+    @customer = @invoice.customer
+    @application = @invoice.application
+    @items = @invoice.invoice_items.to_a
     
     respond_to do |format|
       format.pdf do
         render pdf: "見積書_#{@invoice.invoice_number}",
                template: 'invoices/estimate_pdf',
-               locals: { 
-                 invoice: @invoice,
-                 customer: customer,
-                 application: application,
-                 items: items
-               },
                encoding: "UTF-8"
       end
     end
   end
   
   def download_receipt
-    # wicked_pdf用にassociationを事前にロード
-    customer = @invoice.customer
-    application = @invoice.application
-    items = @invoice.invoice_items.to_a
+    # wicked_pdf用にインスタンス変数を設定
+    @customer = @invoice.customer
+    @application = @invoice.application
+    @items = @invoice.invoice_items.to_a
     
     respond_to do |format|
       format.pdf do
         render pdf: "領収書_#{@invoice.invoice_number}",
                template: 'invoices/receipt_pdf',
-               locals: { 
-                 invoice: @invoice,
-                 customer: customer,
-                 application: application,
-                 items: items
-               },
                encoding: "UTF-8"
       end
     end

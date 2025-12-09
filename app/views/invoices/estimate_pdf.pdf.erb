@@ -128,11 +128,11 @@
   <!-- DEBUG: PDF Template Data -->
   <div style="background-color: #ffff00; padding: 10px; margin-bottom: 10px; font-size: 10pt; border: 2px solid red;">
     <strong>DEBUG INFO:</strong><br>
-    Invoice ID: <%= invoice.id %><br>
-    Customer: <%= customer&.name %> / <%= customer&.company_name %><br>
-    Application: <%= application&.title %><br>
-    Items: <%= items.count %><br>
-    Total: <%= invoice.total %>
+    Invoice ID: <%= @invoice.id %><br>
+    Customer: <%= @customer&.name %> / <%= @customer&.company_name %><br>
+    Application: <%= @application&.title %><br>
+    Items: <%= @items.count %><br>
+    Total: <%= @invoice.total %>
   </div>
   
   <div class="container">
@@ -148,15 +148,15 @@
         <td colspan="3" style="padding-bottom: 4px;">
           <div class="info-row">
             <span class="info-label">見積番号</span>
-            <span class="info-value"><%= invoice.invoice_number %></span>
+            <span class="info-value"><%= @invoice.invoice_number %></span>
           </div>
           <div class="info-row">
             <span class="info-label">発行日</span>
-            <span class="info-value"><%= invoice.issue_date.strftime('%Y年%m月%d日') %></span>
+            <span class="info-value"><%= @invoice.issue_date.strftime('%Y年%m月%d日') %></span>
           </div>
           <div class="info-row">
             <span class="info-label">有効期限</span>
-            <span class="info-value"><%= (invoice.issue_date + 30.days).strftime('%Y年%m月%d日') %></span>
+            <span class="info-value"><%= (@invoice.issue_date + 30.days).strftime('%Y年%m月%d日') %></span>
           </div>
         </td>
       </tr>
@@ -166,14 +166,14 @@
         <td class="left-col">
           <div class="box">
             <div class="box-title">見積先</div>
-            <% if customer&.company_name.present? %>
-              <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;"><%= customer.company_name %> 御中</div>
+            <% if @customer&.company_name.present? %>
+              <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;"><%= @customer.company_name %> 御中</div>
             <% else %>
-              <div style="margin-bottom: 4px; font-size: 14px;"><%= customer&.name %> 様</div>
+              <div style="margin-bottom: 4px; font-size: 14px;"><%= @customer&.name %> 様</div>
             <% end %>
-            <% if application.present? %>
+            <% if @application.present? %>
               <div style="margin-bottom: 2px; font-size: 13px;">
-                <span style="font-weight: bold;">案件：</span><%= application.title %>
+                <span style="font-weight: bold;">案件：</span><%= @application.title %>
               </div>
             <% end %>
           </div>
@@ -208,7 +208,7 @@
         <td colspan="3" style="padding-top: 5px; padding-bottom: 4px;">
           <div style="margin-bottom: 4px; font-size: 14px;">下記の通りお見積り申し上げます。</div>
           <div style="font-size: 18px; font-weight: bold; margin-bottom: 2px;">
-            見積金額 <span style="font-size: 24px;"><%= number_with_delimiter(invoice.total.to_i) %> 円</span> <span style="font-size: 14px;">(税込)</span>
+            見積金額 <span style="font-size: 24px;"><%= number_with_delimiter(@invoice.total.to_i) %> 円</span> <span style="font-size: 14px;">(税込)</span>
           </div>
         </td>
       </tr>
@@ -227,7 +227,7 @@
               </tr>
             </thead>
             <tbody>
-              <% items.each do |item| %>
+              <% @items.each do |item| %>
                 <tr>
                   <td><%= item.description %></td>
                   <td style="text-align: right;"><%= item.quantity %></td>
@@ -245,24 +245,24 @@
         <td colspan="3" style="padding-top: 5px; padding-bottom: 4px;">
           <div style="text-align: right;">
             <div class="total-row">
-              小計（税抜）: <%= number_with_delimiter(invoice.subtotal.to_i) %> 円
+              小計（税抜）: <%= number_with_delimiter(@invoice.subtotal.to_i) %> 円
             </div>
             <div class="total-row">
-              消費税（<%= invoice.tax_rate %>%）: <%= number_with_delimiter((invoice.total - invoice.subtotal).to_i) %> 円
+              消費税（<%= @invoice.tax_rate %>%）: <%= number_with_delimiter((@invoice.total - @invoice.subtotal).to_i) %> 円
             </div>
             <div class="total-row grand-total">
-              合計（税込）: <%= number_with_delimiter(invoice.total.to_i) %> 円
+              合計（税込）: <%= number_with_delimiter(@invoice.total.to_i) %> 円
             </div>
           </div>
         </td>
       </tr>
 
       <!-- 備考 -->
-      <% if invoice.notes.present? %>
+      <% if @invoice.notes.present? %>
         <tr>
           <td colspan="3" style="padding-top: 10px; padding-bottom: 4px;">
             <div class="section-title">備考</div>
-            <div style="white-space: pre-line;"><%= simple_format(invoice.notes) %></div>
+            <div style="white-space: pre-line;"><%= simple_format(@invoice.notes) %></div>
           </td>
         </tr>
       <% end %>
