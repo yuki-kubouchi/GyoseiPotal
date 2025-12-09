@@ -22,3 +22,55 @@ puts "Seeding customers..."
   Customer.where(code: attrs[:code]).first_or_initialize.update!(attrs)
 end
 puts "Customers seeded. Count: #{Customer.count}"
+
+# 本番環境のデータ修正（Customer #3とApplication #3）
+if Rails.env.production?
+  puts "\n=== Fixing Production Data ==="
+  
+  # Customer #3を修正
+  customer = Customer.find_by(id: 3)
+  if customer
+    puts "Fixing Customer #3..."
+    customer.update!(
+      name: "吉田",
+      company_name: "吉田建設（株）",
+      kana: "ヨシダケンセツ",
+      email: "yoshida@example.com",
+      phone: "090-1234-5678",
+      address: "東京都新宿区1-2-3"
+    )
+    puts "  ✓ Customer #3 updated: #{customer.name} / #{customer.company_name}"
+  else
+    puts "  ⚠ Customer #3 not found"
+  end
+  
+  # Application #3を修正
+  application = Application.find_by(id: 3)
+  if application
+    puts "Fixing Application #3..."
+    application.update!(
+      title: "建設業許可"
+    )
+    puts "  ✓ Application #3 updated: #{application.title}"
+  else
+    puts "  ⚠ Application #3 not found"
+  end
+  
+  # 検証
+  puts "\n=== Verification ==="
+  customer = Customer.find_by(id: 3)
+  application = Application.find_by(id: 3)
+  
+  if customer
+    puts "Customer #3:"
+    puts "  name: [#{customer.name}]"
+    puts "  company_name: [#{customer.company_name}]"
+  end
+  
+  if application
+    puts "Application #3:"
+    puts "  title: [#{application.title}]"
+  end
+  
+  puts "✓ Production data fixed!"
+end

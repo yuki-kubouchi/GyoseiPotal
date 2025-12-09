@@ -9,6 +9,9 @@ bundle exec rails assets:clean
 # Run database migrations
 bundle exec rails db:migrate
 
+# Run seeds to fix production data
+bundle exec rails db:seed
+
 # Recalculate invoice amounts after migration
 # This ensures all invoices have their amounts properly calculated and stored
 bundle exec rails invoices:recalculate_amounts
