@@ -129,9 +129,11 @@
   <div style="background-color: #ffff00; padding: 10px; margin-bottom: 10px; font-size: 10pt; border: 2px solid red;">
     <strong>DEBUG INFO:</strong><br>
     Invoice ID: <%= @invoice.id %><br>
-    Customer: <%= @customer&.name %> / <%= @customer&.company_name %><br>
-    Application: <%= @application&.title %><br>
-    Items: <%= @items.count %><br>
+    Customer ID: <%= @invoice.customer_id %><br>
+    Direct access: <%= @invoice.customer&.name %> / <%= @invoice.customer&.company_name %><br>
+    Application ID: <%= @invoice.application_id %><br>
+    Direct app: <%= @invoice.application&.title %><br>
+    Items: <%= @invoice.invoice_items.count %><br>
     Total: <%= @invoice.total %>
   </div>
   
