@@ -10,7 +10,7 @@
       box-sizing: border-box;
     }
     body {
-      font-family: 'Noto Sans JP', 'Hiragino Sans', Arial, sans-serif;
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
       font-size: 12pt;
       color: #333;
       line-height: 1.2;
@@ -125,6 +125,16 @@
   </style>
 </head>
 <body>
+  <!-- DEBUG: PDF Template Data -->
+  <div style="background-color: #ffff00; padding: 10px; margin-bottom: 10px; font-size: 10pt; border: 2px solid red;">
+    <strong>DEBUG INFO:</strong><br>
+    Invoice ID: <%= invoice.id %><br>
+    Customer: <%= invoice.customer&.name %> / <%= invoice.customer&.company_name %><br>
+    Application: <%= invoice.application&.title %><br>
+    Items: <%= invoice.invoice_items.count %><br>
+    Total: <%= invoice.total %>
+  </div>
+  
   <div class="container">
     <!-- Header -->
     <div class="header">
