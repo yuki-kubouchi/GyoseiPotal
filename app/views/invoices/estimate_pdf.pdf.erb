@@ -129,9 +129,9 @@
   <div style="background-color: #ffff00; padding: 10px; margin-bottom: 10px; font-size: 10pt; border: 2px solid red;">
     <strong>DEBUG INFO:</strong><br>
     Invoice ID: <%= invoice.id %><br>
-    Customer: <%= invoice.customer&.name %> / <%= invoice.customer&.company_name %><br>
-    Application: <%= invoice.application&.title %><br>
-    Items: <%= invoice.invoice_items.count %><br>
+    Customer: <%= customer&.name %> / <%= customer&.company_name %><br>
+    Application: <%= application&.title %><br>
+    Items: <%= items.count %><br>
     Total: <%= invoice.total %>
   </div>
   
@@ -166,14 +166,14 @@
         <td class="left-col">
           <div class="box">
             <div class="box-title">見積先</div>
-            <% if invoice.customer&.company_name.present? %>
-              <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;"><%= invoice.customer.company_name %> 御中</div>
+            <% if customer&.company_name.present? %>
+              <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;"><%= customer.company_name %> 御中</div>
             <% else %>
-              <div style="margin-bottom: 4px; font-size: 14px;"><%= invoice.customer&.name %> 様</div>
+              <div style="margin-bottom: 4px; font-size: 14px;"><%= customer&.name %> 様</div>
             <% end %>
-            <% if invoice.application.present? %>
+            <% if application.present? %>
               <div style="margin-bottom: 2px; font-size: 13px;">
-                <span style="font-weight: bold;">案件：</span><%= invoice.application.title %>
+                <span style="font-weight: bold;">案件：</span><%= application.title %>
               </div>
             <% end %>
           </div>
@@ -227,7 +227,7 @@
               </tr>
             </thead>
             <tbody>
-              <% invoice.invoice_items.each do |item| %>
+              <% items.each do |item| %>
                 <tr>
                   <td><%= item.description %></td>
                   <td style="text-align: right;"><%= item.quantity %></td>
