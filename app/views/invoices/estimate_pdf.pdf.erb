@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>見積書</title>
   <style>
     @page {
@@ -12,9 +13,9 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: sans-serif;
     }
     body {
+      font-family: "DejaVu Sans", Arial, sans-serif;
       font-size: 12pt;
       color: #333;
       line-height: 1.2;
@@ -130,31 +131,32 @@
 </head>
 <body>
   <!-- DEBUG: Template Variables -->
-  <div style="background-color: #ffff00; padding: 20px; margin: 10px; border: 3px solid red; font-size: 14pt;">
-    <div style="font-weight: bold; font-size: 16pt; margin-bottom: 10px;">DEBUG - Font Test</div>
-    
-    <div style="margin-bottom: 5px;">Hard-coded Japanese: 吉田建設株式会社</div>
-    <div style="margin-bottom: 5px;">Numbers: 123456789</div>
-    <div style="margin-bottom: 5px;">English: Hello World</div>
-    <div style="margin-bottom: 15px; border-top: 2px solid black; padding-top: 10px;"></div>
-    
-    <div style="margin-bottom: 5px;"><b>From Database:</b></div>
-    <% begin %>
-      <div style="margin-bottom: 5px;">customer.name = <%= @invoice.customer.name %></div>
-      <div style="margin-bottom: 5px;">bytes = <%= @invoice.customer.name.bytes.inspect %></div>
-    <% rescue => e %>
-      <div style="color: red;">ERROR: <%= e.message %></div>
-    <% end %>
-    
-    <div style="margin-bottom: 5px;"><b>Instance Variables:</b></div>
-    <div style="margin-bottom: 5px;">@customer_name = <%= @customer_name %></div>
-    <div style="margin-bottom: 5px;">@customer_company = <%= @customer_company %></div>
-    
-    <% if defined?(customer_name) %>
-      <div style="margin-bottom: 5px;"><b>Local Variables:</b></div>
-      <div style="margin-bottom: 5px;">customer_name = <%= customer_name %></div>
-    <% end %>
-  </div>
+  <table style="width: 100%; background-color: yellow; border: 5px solid red; margin: 20px 0; font-size: 16px; font-family: Arial, sans-serif;">
+    <tr>
+      <td style="padding: 20px; font-size: 16px; line-height: 2.0; color: black;">
+        <p style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">DEBUG - Font Test</p>
+        
+        <p style="font-size: 16px; margin: 5px 0;">Hard-coded: 吉田建設株式会社テスト</p>
+        <p style="font-size: 16px; margin: 5px 0;">Numbers: 123456789</p>
+        <p style="font-size: 16px; margin: 5px 0;">English: Hello World ABC</p>
+        <hr style="margin: 15px 0; border: 2px solid black;">
+        
+        <% begin %>
+          <p style="font-size: 16px; margin: 5px 0;"><strong>Database:</strong> <%= @invoice.customer.name %></p>
+          <p style="font-size: 14px; margin: 5px 0;">Bytes: <%= @invoice.customer.name.bytes.inspect %></p>
+        <% rescue => e %>
+          <p style="color: red; font-size: 16px;">ERROR: <%= e.message %></p>
+        <% end %>
+        
+        <p style="font-size: 16px; margin: 5px 0;"><strong>Instance:</strong> <%= @customer_name %></p>
+        <p style="font-size: 16px; margin: 5px 0;"><strong>Company:</strong> <%= @customer_company %></p>
+        
+        <% if defined?(customer_name) %>
+          <p style="font-size: 16px; margin: 5px 0;"><strong>Local:</strong> <%= customer_name %></p>
+        <% end %>
+      </td>
+    </tr>
+  </table>
   
   <div class="container">
     <!-- Header -->
