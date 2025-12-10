@@ -127,15 +127,26 @@
 <body>
   <!-- DEBUG: Template Variables -->
   <div style="background-color: #ffff00; padding: 10px; margin: 10px; border: 2px solid red;">
-    <strong>DEBUG - Direct AR Access:</strong><br>
-    @invoice.customer.name (AR) = [<%= @invoice.customer.name %>]<br>
-    @invoice.customer.name.bytes = [<%= @invoice.customer.name.bytes.take(10).inspect %>]<br>
-    @invoice.customer.company_name (AR) = [<%= @invoice.customer.company_name %>]<br>
-    @invoice.application.title (AR) = [<%= @invoice.application.title %>]<br>
+    <strong>DEBUG - Safe Access Test:</strong><br>
+    <% begin %>
+      @invoice present? = <%= @invoice.present? %><br>
+      @invoice.class = <%= @invoice.class %><br>
+      @invoice.id = <%= @invoice.id %><br>
+      <% if @invoice.customer.present? %>
+        customer.name (AR) = [<%= @invoice.customer.name %>]<br>
+        customer.name.encoding = <%= @invoice.customer.name.encoding %><br>
+        customer.name.bytes[0..5] = <%= @invoice.customer.name.bytes.take(6).inspect %><br>
+      <% else %>
+        customer is nil<br>
+      <% end %>
+    <% rescue => e %>
+      ERROR: <%= e.message %><br>
+    <% end %>
     <br>
     @customer_name (instance var) = [<%= @customer_name.inspect %>]<br>
+    @customer_name.class = <%= @customer_name.class %><br>
+    @customer_name.encoding = <%= @customer_name.encoding rescue 'N/A' %><br>
     @customer_company (instance var) = [<%= @customer_company.inspect %>]<br>
-    @application_title (instance var) = [<%= @application_title.inspect %>]<br>
     <% if defined?(customer_name) %>
       customer_name (local) = [<%= customer_name.inspect %>]<br>
     <% end %>
