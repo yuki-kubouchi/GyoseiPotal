@@ -133,61 +133,15 @@ class InvoicesController < ApplicationController
   
   def download_estimate
     begin
-      Rails.logger.info "=== PDF Download Debug ==="
+      Rails.logger.info "=== PDF Download (Prawn) ==="
       Rails.logger.info "Invoice ID: #{@invoice.id}"
-      Rails.logger.info "Customer: #{@invoice.customer.inspect}"
-      Rails.logger.info "Application: #{@invoice.application.inspect}"
-      Rails.logger.info "Items count: #{@invoice.invoice_items.count}"
       
-      # シンプルにActive Recordを使用（.to_sで文字列化）
-      @customer_name = @invoice.customer.name.to_s
-      @customer_company = @invoice.customer.company_name.to_s
-      @customer_code = @invoice.customer.code.to_s
-      @customer_kana = @invoice.customer.kana.to_s
-      @customer_address = @invoice.customer.address.to_s
-      @customer_phone = @invoice.customer.phone.to_s
-      @customer_email = @invoice.customer.email.to_s
+      pdf_content = helpers.generate_estimate_pdf(@invoice)
       
-      @application_title = @invoice.application.title.to_s
-      
-      @invoice_items_array = @invoice.invoice_items.map do |item|
-        {
-          description: item.description.to_s,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          amount: item.amount
-        }
-      end
-      
-      Rails.logger.info "Extracted - Customer name: #{@customer_name.inspect}"
-      Rails.logger.info "Extracted - Customer name bytes: #{@customer_name.bytes.take(10).inspect}"
-      Rails.logger.info "Extracted - Customer name encoding: #{@customer_name.encoding}"
-      Rails.logger.info "Extracted - Company: #{@customer_company.inspect}"
-      Rails.logger.info "Extracted - Application: #{@application_title.inspect}"
-      Rails.logger.info "Extracted - Items count: #{@invoice_items_array.length}"
-      if @invoice_items_array.any?
-        Rails.logger.info "Extracted - First item: #{@invoice_items_array.first[:description].inspect}"
-      end
-      
-      respond_to do |format|
-        format.pdf do
-          render pdf: "見積書_#{@invoice.invoice_number}",
-                 template: 'invoices/estimate_pdf',
-                 encoding: "UTF-8",
-                 locals: {
-                   customer_name: @customer_name,
-                   customer_company: @customer_company,
-                   customer_code: @customer_code,
-                   customer_kana: @customer_kana,
-                   customer_address: @customer_address,
-                   customer_phone: @customer_phone,
-                   customer_email: @customer_email,
-                   application_title: @application_title,
-                   invoice_items_array: @invoice_items_array,
-                   invoice: @invoice
-                 }
-        end
-      end
+      send_data pdf_content,
+                filename: "見積書_#{@invoice.invoice_number}.pdf",
+                type: 'application/pdf',
+                disposition: 'attachment'
     rescue => e
       Rails.logger.error "PDF generation error: #{e.class} - #{e.message}"
       Rails.logger.error e.backtrace.first(10).join("\n")

@@ -73,8 +73,9 @@ gem 'groupdate'
 # PDF生成用(日本語対応)
 gem 'prawn'
 gem 'prawn-table'
-gem 'wicked_pdf'  # HTML → PDF変換(日本語対応)
-gem 'wkhtmltopdf-binary'  # wkhtmltopdfバイナリ(macOS対応)
+gem 'ttfunk'  # For font handling
+# gem 'wicked_pdf'  # Temporarily disabled - switching to Prawn
+# gem 'wkhtmltopdf-binary'  # Temporarily disabled
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]

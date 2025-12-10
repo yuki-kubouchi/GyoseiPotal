@@ -2,15 +2,11 @@
 # exit on error
 set -o errexit
 
-# Install Japanese fonts for PDF generation
-echo "=== Installing Japanese fonts ==="
-if command -v apt-get &> /dev/null; then
-  apt-get update -qq
-  apt-get install -y -qq fonts-ipafont-gothic fonts-ipafont-mincho
-  echo "Japanese fonts installed successfully"
-else
-  echo "apt-get not available, skipping font installation"
-fi
+# Install Japanese fonts for PDF generation with Prawn
+echo "=== Installing Japanese fonts for PDF ==="
+apt-get update -qq
+DEBIAN_FRONTEND=noninteractive apt-get install -y -qq fonts-ipafont-gothic fonts-ipafont-mincho fonts-ipaexfont
+echo "Japanese fonts installed successfully"
 
 bundle install
 bundle exec rails assets:precompile
@@ -23,8 +19,6 @@ bundle exec rails db:migrate
 bundle exec rails db:seed
 
 # Recalculate invoice amounts after migration
-# This ensures all invoices have their amounts properly calculated and stored
 bundle exec rails invoices:recalculate_amounts
 
-echo "=== Diagnosing PDF data issue ==="
-bundle exec rails production:diagnose_pdf
+echo "=== Setup complete ==="
