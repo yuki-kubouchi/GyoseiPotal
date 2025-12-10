@@ -127,13 +127,17 @@
 <body>
   <!-- DEBUG: Template Variables -->
   <div style="background-color: #ffff00; padding: 10px; margin: 10px; border: 2px solid red;">
-    <strong>DEBUG - Template Variables:</strong><br>
-    @customer_name = [<%= @customer_name.inspect %>]<br>
-    @customer_company = [<%= @customer_company.inspect %>]<br>
-    @application_title = [<%= @application_title.inspect %>]<br>
-    @invoice_items_array.length = <%= @invoice_items_array.length %><br>
-    <% if @invoice_items_array.any? %>
-      First item description = [<%= @invoice_items_array.first[:description].inspect %>]<br>
+    <strong>DEBUG - Direct AR Access:</strong><br>
+    @invoice.customer.name (AR) = [<%= @invoice.customer.name %>]<br>
+    @invoice.customer.name.bytes = [<%= @invoice.customer.name.bytes.take(10).inspect %>]<br>
+    @invoice.customer.company_name (AR) = [<%= @invoice.customer.company_name %>]<br>
+    @invoice.application.title (AR) = [<%= @invoice.application.title %>]<br>
+    <br>
+    @customer_name (instance var) = [<%= @customer_name.inspect %>]<br>
+    @customer_company (instance var) = [<%= @customer_company.inspect %>]<br>
+    @application_title (instance var) = [<%= @application_title.inspect %>]<br>
+    <% if defined?(customer_name) %>
+      customer_name (local) = [<%= customer_name.inspect %>]<br>
     <% end %>
   </div>
   

@@ -171,7 +171,20 @@ class InvoicesController < ApplicationController
       format.pdf do
         render pdf: "見積書_#{@invoice.invoice_number}",
                template: 'invoices/estimate_pdf',
-               encoding: "UTF-8"
+               encoding: "UTF-8",
+               locals: {
+                 customer_name: @customer_name,
+                 customer_company: @customer_company,
+                 customer_code: @customer_code,
+                 customer_kana: @customer_kana,
+                 customer_address: @customer_address,
+                 customer_phone: @customer_phone,
+                 customer_email: @customer_email,
+                 application_title: @application_title,
+                 invoice_items_array: @invoice_items_array,
+                 invoice: @invoice
+               },
+               wkhtmltopdf: '--encoding UTF-8'
       end
     end
   end
