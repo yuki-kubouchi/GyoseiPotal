@@ -131,29 +131,27 @@
 </head>
 <body>
   <!-- DEBUG: Template Variables -->
-  <table style="width: 100%; background-color: yellow; border: 5px solid red; margin: 20px 0; font-size: 16px; font-family: Arial, sans-serif;">
+  <table style="width: 100%; background-color: yellow; border: 5px solid red; margin: 20px 0; font-size: 16px;">
     <tr>
-      <td style="padding: 20px; font-size: 16px; line-height: 2.0; color: black;">
-        <p style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">DEBUG - Font Test</p>
+      <td style="padding: 20px; font-size: 16px; line-height: 2.0; color: black; font-family: Arial, sans-serif;">
+        <p style="font-size: 18px; font-weight: bold;">DEBUG</p>
         
-        <p style="font-size: 16px; margin: 5px 0;">Hard-coded: 吉田建設株式会社テスト</p>
-        <p style="font-size: 16px; margin: 5px 0;">Numbers: 123456789</p>
-        <p style="font-size: 16px; margin: 5px 0;">English: Hello World ABC</p>
-        <hr style="margin: 15px 0; border: 2px solid black;">
+        <p>Hard: 吉田建設</p>
+        <p>Numbers: 123</p>
+        <p>English: ABC</p>
+        <hr style="margin: 10px 0;">
         
         <% begin %>
-          <p style="font-size: 16px; margin: 5px 0;"><strong>Database:</strong> <%= @invoice.customer.name %></p>
-          <p style="font-size: 14px; margin: 5px 0;">Bytes: <%= @invoice.customer.name.bytes.inspect %></p>
+          <p><b>Direct AR:</b> <%= @invoice.customer.name.to_s %></p>
+          <p><b>Direct AR company:</b> <%= @invoice.customer.company_name.to_s %></p>
+          <p><b>Direct AR app:</b> <%= @invoice.application.title.to_s %></p>
         <% rescue => e %>
-          <p style="color: red; font-size: 16px;">ERROR: <%= e.message %></p>
+          <p style="color: red;">ERROR: <%= e.message %></p>
         <% end %>
         
-        <p style="font-size: 16px; margin: 5px 0;"><strong>Instance:</strong> <%= @customer_name %></p>
-        <p style="font-size: 16px; margin: 5px 0;"><strong>Company:</strong> <%= @customer_company %></p>
-        
-        <% if defined?(customer_name) %>
-          <p style="font-size: 16px; margin: 5px 0;"><strong>Local:</strong> <%= customer_name %></p>
-        <% end %>
+        <hr style="margin: 10px 0;">
+        <p><b>Instance var:</b> <%= @customer_name.inspect %></p>
+        <p><b>Instance var company:</b> <%= @customer_company.inspect %></p>
       </td>
     </tr>
   </table>
@@ -189,14 +187,14 @@
         <td class="left-col">
           <div class="box">
             <div class="box-title">見積先</div>
-            <% if @customer_company.present? %>
-              <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;"><%= @customer_company %> 御中</div>
+            <% if @invoice.customer.company_name.present? %>
+              <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;"><%= @invoice.customer.company_name.to_s %> 御中</div>
             <% else %>
-              <div style="margin-bottom: 4px; font-size: 14px;"><%= @customer_name %> 様</div>
+              <div style="margin-bottom: 4px; font-size: 14px;"><%= @invoice.customer.name.to_s %> 様</div>
             <% end %>
-            <% if @application_title.present? %>
+            <% if @invoice.application.title.present? %>
               <div style="margin-bottom: 2px; font-size: 13px;">
-                <span style="font-weight: bold;">案件：</span><%= @application_title %>
+                <span style="font-weight: bold;">案件：</span><%= @invoice.application.title.to_s %>
               </div>
             <% end %>
           </div>
@@ -250,12 +248,12 @@
               </tr>
             </thead>
             <tbody>
-              <% @invoice_items_array.each do |item| %>
+              <% @invoice.invoice_items.each do |item| %>
                 <tr>
-                  <td><%= item[:description] %></td>
-                  <td style="text-align: right;"><%= item[:quantity] %></td>
-                  <td style="text-align: right;"><%= number_with_delimiter(item[:unit_price].to_i) %></td>
-                  <td style="text-align: right;"><%= number_with_delimiter(item[:amount].to_i) %></td>
+                  <td><%= item.description.to_s %></td>
+                  <td style="text-align: right;"><%= item.quantity %></td>
+                  <td style="text-align: right;"><%= number_with_delimiter(item.unit_price.to_i) %></td>
+                  <td style="text-align: right;"><%= number_with_delimiter(item.amount.to_i) %></td>
                 </tr>
               <% end %>
             </tbody>
