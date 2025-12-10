@@ -185,8 +185,7 @@ class InvoicesController < ApplicationController
                    application_title: @application_title,
                    invoice_items_array: @invoice_items_array,
                    invoice: @invoice
-                 },
-                 wkhtmltopdf: '--encoding UTF-8'
+                 }
         end
       end
     rescue => e
