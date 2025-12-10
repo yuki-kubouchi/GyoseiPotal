@@ -29,11 +29,18 @@ module PdfHelper
         raise "Japanese font not available"
       end
       
+      # フォントファミリーを登録
+      pdf.font_families.update(
+        'IPAGothic' => {
+          normal: font_path
+        }
+      )
+      
       # フォントを設定
-      pdf.font font_path
+      pdf.font 'IPAGothic'
       
       # タイトル
-      pdf.text "見積書", size: 24, style: :bold, align: :center
+      pdf.text "見積書", size: 24, align: :center
       pdf.move_down 20
       
       # 基本情報
@@ -42,7 +49,7 @@ module PdfHelper
       pdf.move_down 20
       
       # 顧客情報
-      pdf.text "見積先", size: 14, style: :bold
+      pdf.text "見積先", size: 14
       customer_name = invoice.customer.company_name.presence || invoice.customer.name
       pdf.text "#{customer_name} 御中", size: 12
       if invoice.application.title.present?
@@ -51,7 +58,7 @@ module PdfHelper
       pdf.move_down 20
       
       # 明細テーブル
-      pdf.text "明細", size: 14, style: :bold
+      pdf.text "明細", size: 14
       pdf.move_down 10
       
       table_data = [['品目', '数量', '単価', '金額']]
@@ -66,7 +73,6 @@ module PdfHelper
       
       pdf.table(table_data, header: true, width: pdf.bounds.width,
                 cell_style: { size: 10, padding: 8 }) do
-        row(0).font_style = :bold
         row(0).background_color = 'EEEEEE'
       end
       
@@ -75,7 +81,7 @@ module PdfHelper
       # 合計金額
       pdf.text "小計（税抜）: #{number_with_delimiter(invoice.subtotal.to_i)} 円", size: 12, align: :right
       pdf.text "消費税（10%）: #{number_with_delimiter(invoice.tax_amount.to_i)} 円", size: 12, align: :right
-      pdf.text "合計（税込）: #{number_with_delimiter(invoice.total.to_i)} 円", size: 14, style: :bold, align: :right
+      pdf.text "合計（税込）: #{number_with_delimiter(invoice.total.to_i)} 円", size: 16, align: :right
     end.render
   end
 end
