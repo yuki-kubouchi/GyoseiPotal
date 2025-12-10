@@ -5,21 +5,32 @@ module PdfHelper
     
     Prawn::Document.new(page_size: 'A4', margin: 40) do |pdf|
       # 日本語フォント設定（システムフォントを使用）
-      begin
-        # Linux (Render)の場合
-        if File.exist?('/usr/share/fonts/truetype/ipafont-gothic/ipag.ttf')
-          pdf.font '/usr/share/fonts/truetype/ipafont-gothic/ipag.ttf'
-        # macOSの場合  
-        elsif File.exist?('/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc')
-          pdf.font '/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc'
-        else
-          # フォールバック: Prawnの組み込みフォント
-          pdf.font 'Helvetica'
+      font_path = nil
+      
+      # 候補フォントパスを順に検索
+      font_candidates = [
+        '/usr/share/fonts/truetype/ipafont-gothic/ipag.ttf',           # Render/Debian
+        '/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf',           # 別のパス
+        '/usr/share/fonts/truetype/fonts-japanese-gothic.ttf',         # 代替1
+        Rails.root.join('app', 'assets', 'fonts', 'ipag.ttf').to_s,   # バンドルされたフォント
+        '/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc'               # macOS
+      ]
+      
+      font_candidates.each do |path|
+        if File.exist?(path)
+          font_path = path
+          Rails.logger.info "Using font: #{font_path}"
+          break
         end
-      rescue => e
-        Rails.logger.error "Font loading error: #{e.message}"
-        pdf.font 'Helvetica'
       end
+      
+      if font_path.nil?
+        Rails.logger.error "No Japanese font found! Checked paths: #{font_candidates.join(', ')}"
+        raise "Japanese font not available"
+      end
+      
+      # フォントを設定
+      pdf.font font_path
       
       # タイトル
       pdf.text "見積書", size: 24, style: :bold, align: :center
