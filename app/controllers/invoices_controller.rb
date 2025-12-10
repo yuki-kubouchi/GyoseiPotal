@@ -115,20 +115,21 @@ class InvoicesController < ApplicationController
   end
 
   def download
-    # wicked_pdf用にインスタンス変数を設定（明示的にロード）
-    @customer = Customer.find(@invoice.customer_id)
-    @application = Application.find(@invoice.application_id)
-    @items = InvoiceItem.where(invoice_id: @invoice.id).to_a
-    
-    send_data WickedPdf.new.pdf_from_string(
-      render_to_string(
-        template: 'invoices/show_pdf'
-      ),
-      encoding: "UTF-8"
-    ),
-    filename: "請求書_#{@invoice.invoice_number}.pdf",
-    type: 'application/pdf',
-    disposition: 'attachment'
+    begin
+      Rails.logger.info "=== Invoice PDF Download (Prawn) ==="
+      Rails.logger.info "Invoice ID: #{@invoice.id}"
+      
+      pdf_content = helpers.generate_invoice_pdf(@invoice)
+      
+      send_data pdf_content,
+                filename: "請求書_#{@invoice.invoice_number}.pdf",
+                type: 'application/pdf',
+                disposition: 'attachment'
+    rescue => e
+      Rails.logger.error "Invoice PDF generation error: #{e.class} - #{e.message}"
+      Rails.logger.error e.backtrace.first(10).join("\n")
+      raise
+    end
   end
   
   def download_estimate
@@ -150,17 +151,20 @@ class InvoicesController < ApplicationController
   end
   
   def download_receipt
-    # wicked_pdf用にインスタンス変数を設定（明示的にロード）
-    @customer = Customer.find(@invoice.customer_id)
-    @application = Application.find(@invoice.application_id)
-    @items = InvoiceItem.where(invoice_id: @invoice.id).to_a
-    
-    respond_to do |format|
-      format.pdf do
-        render pdf: "領収書_#{@invoice.invoice_number}",
-               template: 'invoices/receipt_pdf',
-               encoding: "UTF-8"
-      end
+    begin
+      Rails.logger.info "=== Receipt PDF Download (Prawn) ==="
+      Rails.logger.info "Invoice ID: #{@invoice.id}"
+      
+      pdf_content = helpers.generate_receipt_pdf(@invoice)
+      
+      send_data pdf_content,
+                filename: "領収書_#{@invoice.invoice_number}.pdf",
+                type: 'application/pdf',
+                disposition: 'attachment'
+    rescue => e
+      Rails.logger.error "Receipt PDF generation error: #{e.class} - #{e.message}"
+      Rails.logger.error e.backtrace.first(10).join("\n")
+      raise
     end
   end
 
