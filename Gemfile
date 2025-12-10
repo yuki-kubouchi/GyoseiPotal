@@ -68,7 +68,6 @@ gem "kaminari"
 
 # Charts
 gem 'chartkick'
-gem 'groupdate'
 
 # PDF生成用(日本語対応)
 gem 'prawn'
@@ -108,6 +107,4 @@ end
 gem 'cocoon'
 
 # グラフ表示用
-gem 'chartkick'
 gem 'groupdate'
-gem 'groupdate'  # 日付集計用
