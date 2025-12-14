@@ -36,10 +36,9 @@ module PdfHelper
       end
       
       pdf.table(table_data, header: true, width: pdf.bounds.width,
-                cell_style: { size: 11, padding: 8 }) do
+                cell_style: { size: 11, padding: 8 },
+                column_widths: { 0 => pdf.bounds.width * 0.7, 1 => pdf.bounds.width * 0.3 }) do
         row(0).background_color = 'EEEEEE'
-        column(0).width = 350
-        column(1).width = 150
         column(1).align = :right
       end
       
@@ -101,11 +100,11 @@ module PdfHelper
         ]
       end
       
+      # 請求書のテーブル
       pdf.table(table_data, header: true, width: pdf.bounds.width,
-                cell_style: { size: 11, padding: 8 }) do
+                cell_style: { size: 11, padding: 8 },
+                column_widths: { 0 => pdf.bounds.width * 0.7, 1 => pdf.bounds.width * 0.3 }) do
         row(0).background_color = 'EEEEEE'
-        column(0).width = 350
-        column(1).width = 150
         column(1).align = :right
       end
       
@@ -177,10 +176,9 @@ module PdfHelper
       end
       
       pdf.table(table_data, header: true, width: pdf.bounds.width,
-                cell_style: { size: 11, padding: 8 }) do
+                cell_style: { size: 11, padding: 8 },
+                column_widths: { 0 => pdf.bounds.width * 0.7, 1 => pdf.bounds.width * 0.3 }) do
         row(0).background_color = 'EEEEEE'
-        column(0).width = 350
-        column(1).width = 150
         column(1).align = :right
       end
       
