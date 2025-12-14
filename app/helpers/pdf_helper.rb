@@ -153,9 +153,19 @@ module PdfHelper
       # 領収金額
       pdf.text "下記の通り領収いたします。", size: 12
       pdf.move_down 15
-      pdf.text "¥#{number_with_delimiter(invoice.total.to_i)}", size: 22, align: :center
+      
+      # 金額ボックス（背景色付き）
+      amount_box_y = pdf.cursor
+      pdf.fill_color 'F5F5F5'
+      pdf.fill_rectangle [0, amount_box_y], pdf.bounds.width, 80
+      pdf.fill_color '000000'
+      
+      pdf.move_down 15
+      pdf.text "¥#{number_with_delimiter(invoice.total.to_i)}ー", size: 22, align: :center
       pdf.text "(税込)", size: 11, align: :center
-      pdf.move_down 25
+      pdf.move_down 15
+      
+      pdf.move_down 10
       
       # 但し書き
       if invoice.application.title.present?
