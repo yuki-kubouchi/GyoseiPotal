@@ -156,7 +156,7 @@ module PdfHelper
         pdf.text "口座番号: #{office.account_number}", size: 10 if office.account_number.present?
         pdf.text "口座名義: #{office.account_holder}", size: 10 if office.account_holder.present?
         pdf.move_down 10
-        pdf.text "お支払期日: #{invoice.due_date.strftime('%Y年%m月%d日')}", size: 10, style: :bold
+        pdf.text "お支払期日: #{invoice.due_date.strftime('%Y年%m月%d日')}", size: 11
       end
     end.render
   end
