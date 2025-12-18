@@ -61,6 +61,20 @@ module PdfHelper
       pdf.text "〒#{office.postal_code} #{office.address}", size: 10 if office.postal_code.present? || office.address.present?
       pdf.text "TEL: #{office.phone}", size: 10 if office.phone.present?
       pdf.text "Email: #{office.email}", size: 10 if office.email.present?
+      
+      # 振込先情報
+      if office.bank_name.present? || office.account_number.present?
+        pdf.move_down 20
+        pdf.stroke_horizontal_rule
+        pdf.move_down 15
+        pdf.text "振込先（参考）", size: 12
+        pdf.move_down 5
+        pdf.text "銀行名: #{office.bank_name}", size: 10 if office.bank_name.present?
+        pdf.text "支店名: #{office.branch_name}", size: 10 if office.branch_name.present?
+        pdf.text "口座種別: #{office.account_type}", size: 10 if office.account_type.present?
+        pdf.text "口座番号: #{office.account_number}", size: 10 if office.account_number.present?
+        pdf.text "口座名義: #{office.account_holder}", size: 10 if office.account_holder.present?
+      end
     end.render
   end
 
@@ -128,6 +142,22 @@ module PdfHelper
       pdf.text "〒#{office.postal_code} #{office.address}", size: 10 if office.postal_code.present? || office.address.present?
       pdf.text "TEL: #{office.phone}", size: 10 if office.phone.present?
       pdf.text "Email: #{office.email}", size: 10 if office.email.present?
+      
+      # 振込先情報
+      if office.bank_name.present? || office.account_number.present?
+        pdf.move_down 20
+        pdf.stroke_horizontal_rule
+        pdf.move_down 15
+        pdf.text "振込先", size: 12
+        pdf.move_down 5
+        pdf.text "銀行名: #{office.bank_name}", size: 10 if office.bank_name.present?
+        pdf.text "支店名: #{office.branch_name}", size: 10 if office.branch_name.present?
+        pdf.text "口座種別: #{office.account_type}", size: 10 if office.account_type.present?
+        pdf.text "口座番号: #{office.account_number}", size: 10 if office.account_number.present?
+        pdf.text "口座名義: #{office.account_holder}", size: 10 if office.account_holder.present?
+        pdf.move_down 10
+        pdf.text "お支払期日: #{invoice.due_date.strftime('%Y年%m月%d日')}", size: 10, style: :bold
+      end
     end.render
   end
 
