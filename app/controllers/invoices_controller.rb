@@ -49,12 +49,13 @@ class InvoicesController < ApplicationController
   end
 
   def show
+    @office = OfficeSetting.instance
     respond_to do |format|
       format.html
       format.pdf do
         render pdf: "請求書_#{@invoice.invoice_number}",
                template: 'invoices/show_pdf',
-               locals: { invoice: @invoice },
+               locals: { invoice: @invoice, office: @office },
                encoding: "UTF-8"
       end
     end

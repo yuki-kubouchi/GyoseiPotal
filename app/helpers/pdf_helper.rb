@@ -52,14 +52,15 @@ module PdfHelper
       pdf.move_down 40
       
       # 発行者情報
+      office = OfficeSetting.instance
       pdf.stroke_horizontal_rule
       pdf.move_down 15
       pdf.text "発行者情報", size: 12
       pdf.move_down 5
-      pdf.text "行政書士事務所", size: 11
-      pdf.text "〒123-4567 東京都〇〇区〇〇1-2-3", size: 10
-      pdf.text "TEL: 03-1234-5678", size: 10
-      pdf.text "Email: info@example.com", size: 10
+      pdf.text office.name, size: 11
+      pdf.text "〒#{office.postal_code} #{office.address}", size: 10 if office.postal_code.present? || office.address.present?
+      pdf.text "TEL: #{office.phone}", size: 10 if office.phone.present?
+      pdf.text "Email: #{office.email}", size: 10 if office.email.present?
     end.render
   end
 
@@ -118,14 +119,15 @@ module PdfHelper
       pdf.move_down 40
       
       # 発行者情報
+      office = OfficeSetting.instance
       pdf.stroke_horizontal_rule
       pdf.move_down 15
       pdf.text "発行者情報", size: 12
       pdf.move_down 5
-      pdf.text "行政書士事務所", size: 11
-      pdf.text "〒123-4567 東京都〇〇区〇〇1-2-3", size: 10
-      pdf.text "TEL: 03-1234-5678", size: 10
-      pdf.text "Email: info@example.com", size: 10
+      pdf.text office.name, size: 11
+      pdf.text "〒#{office.postal_code} #{office.address}", size: 10 if office.postal_code.present? || office.address.present?
+      pdf.text "TEL: #{office.phone}", size: 10 if office.phone.present?
+      pdf.text "Email: #{office.email}", size: 10 if office.email.present?
     end.render
   end
 
@@ -202,14 +204,15 @@ module PdfHelper
       pdf.move_down 40
       
       # 発行者情報
+      office = OfficeSetting.instance
       pdf.stroke_horizontal_rule
       pdf.move_down 15
       pdf.text "発行者情報", size: 12
       pdf.move_down 5
-      pdf.text "行政書士事務所", size: 11
-      pdf.text "〒123-4567 東京都〇〇区〇〇1-2-3", size: 10
-      pdf.text "TEL: 03-1234-5678", size: 10
-      pdf.text "Email: info@example.com", size: 10
+      pdf.text office.name, size: 11
+      pdf.text "〒#{office.postal_code} #{office.address}", size: 10 if office.postal_code.present? || office.address.present?
+      pdf.text "TEL: #{office.phone}", size: 10 if office.phone.present?
+      pdf.text "Email: #{office.email}", size: 10 if office.email.present?
     end.render
   end
 

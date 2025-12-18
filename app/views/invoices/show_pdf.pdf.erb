@@ -168,22 +168,33 @@
         <td class="right-col">
           <div class="box">
             <div class="box-title">発行者</div>
-            <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;">行政ポータル事務所</div>
-            <div style="margin-bottom: 2px; font-size: 13px;">〒100-0000</div>
-            <div style="margin-bottom: 5px; font-size: 13px;">東京都千代田区〇〇1-2-3</div>
+            <% office = OfficeSetting.instance %>
+            <div style="margin-bottom: 4px; font-size: 14px; font-weight: bold;"><%= office.name %></div>
+            <% if office.postal_code.present? %>
+              <div style="margin-bottom: 2px; font-size: 13px;">〒<%= office.postal_code %></div>
+            <% end %>
+            <% if office.address.present? %>
+              <div style="margin-bottom: 5px; font-size: 13px;"><%= office.address %></div>
+            <% end %>
             <table cellspacing="0" cellpadding="0" style="width: 100%;">
-              <tr>
-                <td style="width: 40px; font-size: 13px; color: #666; padding: 1px 0; vertical-align: top;">TEL</td>
-                <td style="font-size: 13px; padding: 1px 0;">03-1234-5678</td>
-              </tr>
-              <tr>
-                <td style="width: 40px; font-size: 13px; color: #666; padding: 1px 0; vertical-align: top;">FAX</td>
-                <td style="font-size: 13px; padding: 1px 0;">03-1234-5679</td>
-              </tr>
-              <tr>
-                <td style="width: 40px; font-size: 13px; color: #666; padding: 1px 0; vertical-align: top;">Email</td>
-                <td style="font-size: 13px; padding: 1px 0;">info@gyoseipotal.jp</td>
-              </tr>
+              <% if office.phone.present? %>
+                <tr>
+                  <td style="width: 40px; font-size: 13px; color: #666; padding: 1px 0; vertical-align: top;">TEL</td>
+                  <td style="font-size: 13px; padding: 1px 0;"><%= office.phone %></td>
+                </tr>
+              <% end %>
+              <% if office.fax.present? %>
+                <tr>
+                  <td style="width: 40px; font-size: 13px; color: #666; padding: 1px 0; vertical-align: top;">FAX</td>
+                  <td style="font-size: 13px; padding: 1px 0;"><%= office.fax %></td>
+                </tr>
+              <% end %>
+              <% if office.email.present? %>
+                <tr>
+                  <td style="width: 40px; font-size: 13px; color: #666; padding: 1px 0; vertical-align: top;">Email</td>
+                  <td style="font-size: 13px; padding: 1px 0;"><%= office.email %></td>
+                </tr>
+              <% end %>
             </table>
           </div>
         </td>
@@ -241,26 +252,37 @@
         <td colspan="3" style="padding-top: 4px; padding-bottom: 4px;">
           <div>
             <div class="section-title">振込先</div>
-            <div class="info-row">
-              <span class="info-label">銀行名</span>
-              <span class="info-value">〇〇銀行</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">支店名</span>
-              <span class="info-value">〇〇支店</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">口座種別</span>
-              <span class="info-value">普通預金</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">口座番号</span>
-              <span class="info-value">1234567</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">口座名義</span>
-              <span class="info-value">行政ポータル事務所</span>
-            </div>
+            <% office = OfficeSetting.instance %>
+            <% if office.bank_name.present? %>
+              <div class="info-row">
+                <span class="info-label">銀行名</span>
+                <span class="info-value"><%= office.bank_name %></span>
+              </div>
+            <% end %>
+            <% if office.branch_name.present? %>
+              <div class="info-row">
+                <span class="info-label">支店名</span>
+                <span class="info-value"><%= office.branch_name %></span>
+              </div>
+            <% end %>
+            <% if office.account_type.present? %>
+              <div class="info-row">
+                <span class="info-label">口座種別</span>
+                <span class="info-value"><%= office.account_type %></span>
+              </div>
+            <% end %>
+            <% if office.account_number.present? %>
+              <div class="info-row">
+                <span class="info-label">口座番号</span>
+                <span class="info-value"><%= office.account_number %></span>
+              </div>
+            <% end %>
+            <% if office.account_holder.present? %>
+              <div class="info-row">
+                <span class="info-label">口座名義</span>
+                <span class="info-value"><%= office.account_holder %></span>
+              </div>
+            <% end %>
             <div class="info-row">
               <span class="info-label">支払期日</span>
               <span class="info-value"><strong><%= @invoice.due_date.strftime('%Y年%m月%d日') %></strong></span>

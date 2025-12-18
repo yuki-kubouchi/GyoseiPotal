@@ -181,22 +181,33 @@
         <td class="right-col">
           <div class="box">
             <div class="box-title">発行元</div>
-            <div style="margin-bottom: 10px; font-size: 16px; font-weight: bold;">行政ポータル事務所</div>
-            <div style="margin-bottom: 5px; font-size: 13px;">〒100-0000</div>
-            <div style="margin-bottom: 15px; font-size: 13px;">東京都千代田区〇〇1-2-3</div>
+            <% office = OfficeSetting.instance %>
+            <div style="margin-bottom: 10px; font-size: 16px; font-weight: bold;"><%= office.name %></div>
+            <% if office.postal_code.present? %>
+              <div style="margin-bottom: 5px; font-size: 13px;">〒<%= office.postal_code %></div>
+            <% end %>
+            <% if office.address.present? %>
+              <div style="margin-bottom: 15px; font-size: 13px;"><%= office.address %></div>
+            <% end %>
             <table cellspacing="0" cellpadding="0" style="width: 100%;">
-              <tr>
-                <td style="width: 50px; font-size: 13px; color: #666; padding: 2px 0; vertical-align: top;">TEL</td>
-                <td style="font-size: 13px; padding: 2px 0;">03-1234-5678</td>
-              </tr>
-              <tr>
-                <td style="width: 50px; font-size: 13px; color: #666; padding: 2px 0; vertical-align: top;">FAX</td>
-                <td style="font-size: 13px; padding: 2px 0;">03-1234-5679</td>
-              </tr>
-              <tr>
-                <td style="width: 50px; font-size: 13px; color: #666; padding: 2px 0; vertical-align: top;">Email</td>
-                <td style="font-size: 13px; padding: 2px 0;">info@gyoseipotal.jp</td>
-              </tr>
+              <% if office.phone.present? %>
+                <tr>
+                  <td style="width: 50px; font-size: 13px; color: #666; padding: 2px 0; vertical-align: top;">TEL</td>
+                  <td style="font-size: 13px; padding: 2px 0;"><%= office.phone %></td>
+                </tr>
+              <% end %>
+              <% if office.fax.present? %>
+                <tr>
+                  <td style="width: 50px; font-size: 13px; color: #666; padding: 2px 0; vertical-align: top;">FAX</td>
+                  <td style="font-size: 13px; padding: 2px 0;"><%= office.fax %></td>
+                </tr>
+              <% end %>
+              <% if office.email.present? %>
+                <tr>
+                  <td style="width: 50px; font-size: 13px; color: #666; padding: 2px 0; vertical-align: top;">Email</td>
+                  <td style="font-size: 13px; padding: 2px 0;"><%= office.email %></td>
+                </tr>
+              <% end %>
             </table>
           </div>
         </td>

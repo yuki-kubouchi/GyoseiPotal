@@ -33,6 +33,9 @@ Rails.application.routes.draw do
   # データ分析ページ
   get 'analysis', to: 'dashboard#analysis', as: :analysis
 
+  # 事務所情報設定
+  resource :office_setting, only: [:edit, :update]
+
   # Defines the root path route ("/")
   root "dashboard#index"
 end
