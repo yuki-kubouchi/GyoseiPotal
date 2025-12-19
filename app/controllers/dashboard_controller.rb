@@ -1,4 +1,8 @@
 class DashboardController < ApplicationController
+  rescue_from ActiveRecord::DatabaseConnectionError, ActiveRecord::ConnectionNotEstablished do |exception|
+    render plain: "データベース接続エラー: #{exception.message}\n\nRenderダッシュボードでDATABASE_URL環境変数が正しく設定されているか確認してください。", status: 503
+  end
+
   def index
     # データベースアダプタに応じた日付フォーマット関数を取得
     date_format = if postgresql?
