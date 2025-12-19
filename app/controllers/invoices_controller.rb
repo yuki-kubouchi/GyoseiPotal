@@ -2,6 +2,13 @@ class InvoicesController < ApplicationController
   require 'prawn'
   require 'prawn/table'
   before_action :set_invoice, only: [:show, :edit, :update, :destroy, :download, :download_estimate, :download_receipt]
+  
+  rescue_from ActiveRecord::StatementInvalid do |exception|
+    logger.error "Database query error in InvoicesController: #{exception.message}"
+    logger.error exception.backtrace.first(10).join("\n")
+    
+    render plain: "データベースクエリエラー: #{exception.message}", status: 500
+  end
 
   def index
     @q = params[:q].to_s.strip
