@@ -5,7 +5,8 @@ class Invoice < ApplicationRecord
 
   accepts_nested_attributes_for :invoice_items, allow_destroy: true
 
-  enum status: { draft: 'draft', sent: 'sent', paid: 'paid', overdue: 'overdue', cancelled: 'cancelled' }
+  # enumは整数ベースで定義（データベースのinteger型に対応）
+  enum status: { draft: 0, sent: 1, paid: 2, overdue: 3, cancelled: 4 }
 
   validates :invoice_number, presence: true, uniqueness: true
   validates :customer_id, presence: true
