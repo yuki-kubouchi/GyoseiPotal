@@ -1,10 +1,16 @@
 # Initialize OfficeSetting on application startup
-# Skip during assets:precompile to avoid database connection issues
+# This runs after auto_migrate.rb has completed migrations
 Rails.application.config.after_initialize do
-  # Skip if we're precompiling assets or database isn't available
-  next if defined?(Rails::Console) || File.basename($0) == 'rake' || !ActiveRecord::Base.connected?
+  # Skip if we're in console or running rake tasks
+  next if defined?(Rails::Console) || File.basename($0) == 'rake'
+  
+  # Skip in Puma worker processes (only run in master)
+  next if ENV['PUMA_CLUSTER_WORKER_INDEX']
   
   begin
+    # Check if database connection is available
+    next unless ActiveRecord::Base.connection.active?
+    
     # Only run if the table exists and is accessible
     if ActiveRecord::Base.connection.table_exists?('office_settings')
       # Ensure at least one OfficeSetting exists
@@ -16,13 +22,20 @@ Rails.application.config.after_initialize do
           phone: '03-1234-5678',
           email: 'info@example.com'
         )
-        Rails.logger.info "OfficeSetting initialized successfully"
+        Rails.logger.info "✅ OfficeSetting initialized with default values"
+      else
+        Rails.logger.info "✅ OfficeSetting already exists"
       end
+    else
+      Rails.logger.warn "⚠️ office_settings table does not exist yet"
     end
-  rescue ActiveRecord::NoDatabaseError, PG::ConnectionBad, ActiveRecord::StatementInvalid => e
-    # Silently skip if database is not ready (e.g., during asset precompilation)
-    Rails.logger.debug "Skipping OfficeSetting initialization: #{e.class}"
+  rescue ActiveRecord::NoDatabaseError, PG::ConnectionBad => e
+    Rails.logger.warn "⚠️ Database not available: #{e.class}"
+  rescue ActiveRecord::StatementInvalid => e
+    Rails.logger.warn "⚠️ Database error: #{e.message}"
   rescue => e
-    Rails.logger.error "Failed to initialize OfficeSetting: #{e.message}"
+    Rails.logger.error "❌ Failed to initialize OfficeSetting: #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n")
+    # Don't re-raise - allow the app to start
   end
 end
