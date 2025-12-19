@@ -1,5 +1,11 @@
 # render.yaml
 
+databases:
+  - name: gyosei-potal-db
+    databaseName: gyosei_potal_production
+    user: gyosei_potal_user
+    plan: free
+
 services:
   - type: web
     name: gyosei-potal
@@ -15,13 +21,8 @@ services:
         value: "true"
       - key: RACK_ENV
         value: production
-      # データベース接続情報はRenderのダッシュボードで設定
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gyosei-potal-db
+          property: connectionString
     plan: free
-
-  - type: db
-    name: gyosei-potal-db
-    databaseName: gyosei_potal_production
-    user: gyosei_potal_user
-    plan: free
-    engine: mysql
-    version: "8.0"
