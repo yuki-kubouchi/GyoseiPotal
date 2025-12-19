@@ -74,3 +74,18 @@ if Rails.env.production?
   
   puts "✓ Production data fixed!"
 end
+
+# OfficeSetting の初期化
+puts "\n=== Initializing Office Settings ==="
+if OfficeSetting.count == 0
+  OfficeSetting.create!(
+    name: '行政書士事務所',
+    postal_code: '123-4567',
+    address: '東京都〇〇区〇〇1-2-3',
+    phone: '03-1234-5678',
+    email: 'info@example.com'
+  )
+  puts "✓ Office settings initialized"
+else
+  puts "✓ Office settings already exist"
+end
