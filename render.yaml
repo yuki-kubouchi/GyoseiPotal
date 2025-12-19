@@ -4,7 +4,7 @@ services:
   - type: web
     name: gyosei-potal
     env: ruby
-    buildCommand: "./bin/render-build.sh"
+    buildCommand: "bundle install && bundle exec rails assets:precompile && bundle exec rails assets:clean"
     startCommand: "bundle exec puma -C config/puma.rb"
     envVars:
       - key: RAILS_ENV
