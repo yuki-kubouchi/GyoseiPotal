@@ -1,8 +1,12 @@
 # Initialize OfficeSetting on application startup
+# Skip during assets:precompile to avoid database connection issues
 Rails.application.config.after_initialize do
-  # Only run in production or when database is ready
-  if ActiveRecord::Base.connection.table_exists?('office_settings')
-    begin
+  # Skip if we're precompiling assets or database isn't available
+  next if defined?(Rails::Console) || File.basename($0) == 'rake' || !ActiveRecord::Base.connected?
+  
+  begin
+    # Only run if the table exists and is accessible
+    if ActiveRecord::Base.connection.table_exists?('office_settings')
       # Ensure at least one OfficeSetting exists
       if OfficeSetting.count == 0
         OfficeSetting.create!(
@@ -14,8 +18,11 @@ Rails.application.config.after_initialize do
         )
         Rails.logger.info "OfficeSetting initialized successfully"
       end
-    rescue => e
-      Rails.logger.error "Failed to initialize OfficeSetting: #{e.message}"
     end
+  rescue ActiveRecord::NoDatabaseError, PG::ConnectionBad, ActiveRecord::StatementInvalid => e
+    # Silently skip if database is not ready (e.g., during asset precompilation)
+    Rails.logger.debug "Skipping OfficeSetting initialization: #{e.class}"
+  rescue => e
+    Rails.logger.error "Failed to initialize OfficeSetting: #{e.message}"
   end
 end
