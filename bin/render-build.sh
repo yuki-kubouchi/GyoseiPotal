@@ -18,4 +18,7 @@ bundle install
 bundle exec rails assets:precompile
 bundle exec rails assets:clean
 
-echo "=== Build complete (database tasks will run on app startup) ==="
+# Note: Database migrations and seeds are handled by initializers on app startup
+# This is because the database is not available during the build phase on Render free tier
+echo "=== Build complete ==="
+echo "=== Database migrations will run automatically on first app startup ==="
