@@ -27,8 +27,10 @@ class InvoicesController < ApplicationController
 
     if @q.present?
       like = "%#{@q}%"
+      # PostgreSQLでは大文字小文字を区別しない検索にILIKEを使用
+      like_operator = postgresql? ? 'ILIKE' : 'LIKE'
       scope = scope.joins(:customer, :application).where(
-        "invoices.invoice_number LIKE :q OR customers.name LIKE :q OR applications.title LIKE :q",
+        "invoices.invoice_number #{like_operator} :q OR customers.name #{like_operator} :q OR applications.title #{like_operator} :q",
         q: like
       )
     end

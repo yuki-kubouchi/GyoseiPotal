@@ -26,7 +26,8 @@ class ApplicationsController < ApplicationController
 
     if @q.present?
       like = "%#{@q}%"
-      scope = scope.where("applications.title LIKE ?", like)
+      like_operator = postgresql? ? 'ILIKE' : 'LIKE'
+      scope = scope.where("applications.title #{like_operator} ?", like)
     end
 
   # POST /applications/import

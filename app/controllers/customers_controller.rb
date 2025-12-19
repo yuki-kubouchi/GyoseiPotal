@@ -12,7 +12,8 @@ class CustomersController < ApplicationController
 
     if @q.present?
       like = "%#{@q}%"
-      scope = scope.where("code LIKE ? OR name LIKE ?", like, like)
+      like_operator = postgresql? ? 'ILIKE' : 'LIKE'
+      scope = scope.where("code #{like_operator} ? OR name #{like_operator} ?", like, like)
     end
 
   # POST /customers/import
