@@ -56,12 +56,16 @@ class ApplicationController < ActionController::Base
   private
 
   def postgresql?
-    return false unless ActiveRecord::Base.connected?
-    
     begin
-      ActiveRecord::Base.connection.adapter_name.downcase.include?('postgresql')
-    rescue ActiveRecord::ConnectionNotEstablished, ActiveRecord::DatabaseConnectionError
-      false
+      # 接続を確立してアダプター名を確認
+      adapter_name = ActiveRecord::Base.connection.adapter_name.downcase
+      result = adapter_name.include?('postgresql')
+      Rails.logger.debug "Database adapter: #{adapter_name}, is_postgresql: #{result}"
+      result
+    rescue => e
+      Rails.logger.error "Error checking database adapter: #{e.message}"
+      # 本番環境のデフォルトはPostgreSQL
+      Rails.env.production?
     end
   end
 end

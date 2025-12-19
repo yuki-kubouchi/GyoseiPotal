@@ -1,14 +1,18 @@
 class AddFieldsToInvoices < ActiveRecord::Migration[7.1]
   def change
-    add_column :invoices, :invoice_number, :string
-    add_column :invoices, :due_date, :date
-    add_column :invoices, :tax_rate, :decimal, precision: 5, scale: 2, default: 10.0
-    add_column :invoices, :notes, :text
+    # これらのカラムは既に存在するのでスキップ
+    # add_column :invoices, :invoice_number, :string (already exists)
+    # add_column :invoices, :due_date, :date (already exists)
+    # add_column :invoices, :tax_rate, :decimal (already exists)
+    # add_column :invoices, :notes, :text (already exists)
     
-    # issued_on を issue_date にリネーム
-    rename_column :invoices, :issued_on, :issue_date
+    # issued_on カラムが存在する場合のみリネーム
+    if column_exists?(:invoices, :issued_on)
+      rename_column :invoices, :issued_on, :issue_date
+    end
     
-    # status カラムを文字列に変更
-    change_column :invoices, :status, :string, default: 'draft'
+    # status カラムが整数型の場合のみ変更
+    # (既に整数型として定義されているので、このままにする)
+    # change_column :invoices, :status, :string, default: 'draft'
   end
 end
