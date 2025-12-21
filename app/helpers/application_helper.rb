@@ -12,6 +12,10 @@ module ApplicationHelper
 
   def status_badge_class(status)
     base_classes = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+    
+    # statusがnilの場合はデフォルトを返す
+    return "#{base_classes} bg-gray-100 text-gray-800" if status.blank?
+    
     case status.to_sym
     when :draft
       "#{base_classes} bg-gray-100 text-gray-800"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_18_114446) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_21_081540) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -78,31 +78,31 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_18_114446) do
 
   create_table "invoice_items", force: :cascade do |t|
     t.integer "invoice_id", null: false
-    t.string "description"
-    t.decimal "quantity"
-    t.decimal "unit_price"
+    t.string "description", null: false
+    t.decimal "quantity", precision: 10, scale: 2, default: "1.0", null: false
+    t.decimal "unit_price", precision: 10, scale: 2, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["invoice_id"], name: "index_invoice_items_on_invoice_id"
   end
 
   create_table "invoices", force: :cascade do |t|
-    t.integer "customer_id", null: false
     t.integer "application_id", null: false
-    t.integer "amount_yen"
-    t.date "issue_date"
-    t.string "status", default: "draft"
+    t.integer "customer_id", null: false
+    t.string "invoice_number", null: false
+    t.date "issue_date", null: false
+    t.date "due_date", null: false
+    t.decimal "tax_rate", precision: 5, scale: 2, default: "10.0", null: false
+    t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "invoice_number"
-    t.date "due_date"
-    t.decimal "tax_rate", precision: 5, scale: 2, default: "10.0"
-    t.text "notes"
     t.decimal "subtotal", precision: 10, scale: 2, default: "0.0", null: false
     t.decimal "tax_amount", precision: 10, scale: 2, default: "0.0", null: false
     t.decimal "total", precision: 10, scale: 2, default: "0.0", null: false
+    t.integer "status"
     t.index ["application_id"], name: "index_invoices_on_application_id"
     t.index ["customer_id"], name: "index_invoices_on_customer_id"
+    t.index ["invoice_number"], name: "index_invoices_on_invoice_number", unique: true
   end
 
   create_table "office_settings", force: :cascade do |t|
