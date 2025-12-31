@@ -1,10 +1,10 @@
 # 行政ポータル (Gyosei Potal) - 業務管理システム
 
-[![Ruby on Rails](https://img.shields.io/badge/Ruby_on_Rails-CC0000?style=for-the-badge&logo=ruby-on-rails&logoColor=white)](https://rubyonrails.org/)
-[![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Ruby](https://img.shields.io/badge/Ruby-3.2.0-CC342D?style=for-the-badge&logo=ruby&logoColor=white)](https://www.ruby-lang.org/)
+[![Ruby on Rails](https://img.shields.io/badge/Rails-7.1.6-CC0000?style=for-the-badge&logo=ruby-on-rails&logoColor=white)](https://rubyonrails.org/)
+[![SQLite](https://img.shields.io/badge/SQLite-1.4+-07405E?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.1.17-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
 ## 📌 プロダクト概要
 
@@ -16,6 +16,8 @@
 - **スケジュール管理**: カレンダービューで案件の期限や顧客面談を管理
 - **顧客情報管理**: 顧客情報と案件履歴を紐づけて管理
 - **請求管理**: 申請・顧客情報と紐づいた請求管理、見積書・請求書・領収書をPDFで作成可能
+- **事務所情報管理**: 自社の事務所情報・振込先情報を登録し、PDF帳票に自動反映
+- **PDF帳票生成**: Prawnを使用した見積書・請求書・領収書の自動生成機能
 - **データ永続化**: 請求金額をデータベースに保存し、PostgreSQL本番環境で正確な集計を実現
 
 ## 🚀 URL
@@ -79,6 +81,12 @@
 ### 請求情報管理
 - 申請情報・顧客情報との紐付け表示
 - 見積書・請求書・領収書をPDFで作成可能
+- 事務所情報・振込先情報を自動挿入
+
+### 事務所情報管理
+- 事務所の基本情報（名称、住所、連絡先）の登録・編集
+- 振込先情報の管理（銀行名、支店名、口座情報）
+- 登録情報をPDF帳票に自動反映
 
 ### モバイル対応
 - レスポンシブデザインに対応
@@ -144,6 +152,18 @@
 - **active_storage_attachments**: モデルとファイルの関連付け
 - **active_storage_variant_records**: ファイルのバリアント情報
 
+#### office_settings（事務所情報）
+- **name**: 事務所名（必須）
+- **postal_code**: 郵便番号
+- **address**: 住所
+- **phone**: 電話番号
+- **email**: メールアドレス
+- **bank_name**: 銀行名
+- **branch_name**: 支店名
+- **account_type**: 口座種別（0: 普通, 1: 当座）
+- **account_number**: 口座番号
+- **account_holder**: 口座名義
+
 ### リレーションシップの特徴
 - **顧客中心**: 顧客を起点に申請・請求情報が連携
 - **申請-請求連携**: 申請と請求は多対多の関係（1申請に対して複数請求可能）
@@ -158,12 +178,12 @@
 
 ### 必要なソフトウェア
 - **Ruby**: 3.2.0
-- **Rails**: 7.1.0
+- **Rails**: 7.1.6
 - **Bundler**: 最新版
-- **MySQL**: 8.0+ (開発環境)
+- **SQLite3**: 1.4+ (開発環境)
 - **PostgreSQL**: 13+ (本番環境)
-- **Node.js**: 16+
-- **Yarn**: 1.22+
+- **Node.js**: 16+ (Tailwind CSSのビルドに使用)
+- **npm**: Node.jsに付属
 
 ### 開発ツール
 - **IDE**: VS Code / RubyMine
@@ -193,20 +213,14 @@ gem install bundler
 # Gemパッケージのインストール
 bundle install
 
-# Node.jsパッケージのインストール
-yarn install
+# Node.jsパッケージのインストール（Tailwind CSS用）
+npm install
 ```
 
 ### 4. データベースのセットアップ
 ```bash
-# データベース作成
-bin/rails db:create
-
-# マイグレーション実行
-bin/rails db:migrate
-
-# 初期データ投入（任意）
-bin/rails db:seed
+# データベース作成・マイグレーション・初期データ投入を一括実行
+rails db:create db:migrate db:seed
 ```
 
 ### 5. サーバーの起動
@@ -224,8 +238,9 @@ bin/dev
 
 ### トラブルシューティング
 - **サーバーが起動しない場合**: `bin/rails server` で直接起動
-- **データベースエラー**: MySQLが起動しているか確認
+- **データベースエラー**: SQLite3が正しくインストールされているか確認（`sqlite3 --version`）
 - **ポート3000が使用中**: `PORT=3001 bin/dev` でポート変更
+- **Tailwindがビルドされない**: `npm run build:css` で手動ビルド
 
 ## 💡 工夫したポイント
 
@@ -254,22 +269,44 @@ bin/dev
 - **期限管理の重視**: 期限が近い案件の自動ハイライト表示
 - **書類管理機能**: 添付ファイルの一元管理
 
+### 6. データベース互換性の確保
+- **マルチデータベース対応**: PostgreSQL（本番）とSQLite（開発）の両対応
+- **クエリの最適化**: ILIKE（PostgreSQL）とLIKE（SQLite）の動的切り替え
+- **Enumパターン**: 整数ベースのenumで型安全性を確保
+- **マイグレーション戦略**: データベースアダプタを検出してSQL文を最適化
+
+### 7. 本番環境デプロイの工夫
+- **自動マイグレーション**: アプリ起動時にペンディング中のマイグレーションを自動実行
+- **PostgreSQLアドバイザリーロック**: 並行マイグレーションを防止
+- **Render無料枠対応**: ビルド時にデータベースアクセスできない制約をランタイム初期化で解決
+- **エラーハンドリング**: データベース接続エラー時の詳細なガイダンス表示
+
 
 
 ## 🛠 技術スタック
 
 ### バックエンド
-- **フレームワーク**: Ruby on Rails 7.1
+- **フレームワーク**: Ruby on Rails 7.1.6
 - **言語**: Ruby 3.2.0
 - **データベース**: 
-  - 本番環境: PostgreSQL
+  - 本番環境: PostgreSQL 16
   - 開発/テスト環境: SQLite3
 - **Webサーバー**: Puma
+- **PDF生成**: Prawn 2.5.0 + Prawn-table (日本語フォント: IPA Gothic)
+- **認証**: Basic認証（Rackミドルウェア）
+- **ページネーション**: Kaminari
+- **グラフ表示**: Chartkick + Groupdate
 
 ### フロントエンド
-- **スタイリング**: Tailwind CSS
+- **スタイリング**: Tailwind CSS 4.1.17
 - **インタラクション**: Hotwire (Turbo + Stimulus)
-- **UIコンポーネント**: Kaminari（ページネーション）
+- **ビルドツール**: Importmap-rails (ES Module Import Maps)
+- **ネストフォーム**: Cocoon
+
+### インフラ・デプロイ
+- **ホスティング**: Render（無料枠）
+- **自動デプロイ**: GitHub連携による継続的デプロイメント
+- **環境変数管理**: Rails Credentials + 環境変数
 
 ## � 開発環境構築
 
@@ -290,19 +327,13 @@ bin/dev
 2. **依存関係のインストール**
    ```bash
    bundle install
-   yarn install
+   npm install
    ```
 
 3. **データベースのセットアップ**
    ```bash
-   # データベース作成
-   bin/rails db:create
-   
-   # マイグレーションの実行
-   bin/rails db:migrate
-   
-   # テストデータの投入（必要な場合）
-   bin/rails db:seed
+   # データベース作成・マイグレーション・シードデータ投入
+   rails db:create db:migrate db:seed
    ```
 
 4. **サーバーの起動**
@@ -324,10 +355,23 @@ open coverage/index.html
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
 
+### Render本番環境の構成
+- **Webサービス**: Ruby on Rails アプリケーション
+- **データベース**: PostgreSQL 16（無料枠：90日間有効）
+- **ビルドコマンド**: `./bin/render-build.sh`（アセットコンパイルのみ）
+- **起動時処理**: 自動マイグレーション + 初期データ投入
+
 ### 環境変数
-- `DATABASE_URL`: PostgreSQL接続URL
+- `DATABASE_URL`: PostgreSQL接続URL（Renderが自動設定）
 - `RAILS_MASTER_KEY`: 本番環境用の`config/credentials.yml.enc`を復号化するためのキー（非公開）
 - `RAILS_SERVE_STATIC_FILES`: `true`に設定
+
+### デプロイの特徴
+- **ランタイムマイグレーション**: ビルド時にDBアクセス不可のため、アプリ起動時に自動実行
+- **PostgreSQLアドバイザリーロック**: 複数インスタンス起動時の競合を防止
+- **自動初期化**: 事務所情報のデフォルト値を自動登録
+
+詳細は [RENDER_SETUP.md](RENDER_SETUP.md) を参照してください。
 
 ## 👥 コントリビューション
 
