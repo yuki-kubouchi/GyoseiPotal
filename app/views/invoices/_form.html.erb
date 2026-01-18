@@ -1,4 +1,4 @@
-<%= form_with(model: invoice, local: true, html: { class: "space-y-6 invoice-form", data: { controller: 'nested-form' } }) do |form| %>
+<%= form_with(model: invoice, local: true, html: { class: "space-y-6 invoice-form" }) do |form| %>
   <% if invoice.errors.any? %>
     <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
       <div class="flex">
@@ -111,7 +111,8 @@
             <%= render 'invoice_item_fields', f: item %>
           <% end %>
           <div class="links mt-4">
-            <%= link_to_add_association '明細を追加', form, :invoice_items, 
+            <%= link_to_add_association '明細を追加', form, :invoice_items,
+                                      partial: 'invoice_item_fields',
                                       class: 'inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500' %>
           </div>
         </div>

@@ -87,6 +87,11 @@ class InvoicesController < ApplicationController
   end
 
   def create
+    Rails.logger.debug "=== Invoice Params ==="
+    Rails.logger.debug invoice_params.inspect
+    Rails.logger.debug "=== Raw Params ==="
+    Rails.logger.debug params.inspect
+    
     @invoice = Invoice.new(invoice_params)
 
     if @invoice.save

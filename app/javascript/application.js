@@ -4,11 +4,15 @@
 import { Turbo } from "@hotwired/turbo-rails"
 import Color from "./color.js"
 import * as ActiveStorage from "@rails/activestorage"
-import "jquery"
+import jquery from "jquery"
 import "@nathanvda/cocoon"
 import Chart from "chart.js/auto"
 import Chartkick from "chartkick"
 import initInvoices from "invoices"
+
+// グローバルに jQuery を公開（cocoon が必要とする）
+window.jQuery = jquery
+window.$ = jquery
 
 // Chart.jsをChartkickに登録
 Chartkick.addAdapter(Chart)

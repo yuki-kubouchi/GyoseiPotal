@@ -3,7 +3,9 @@ class Invoice < ApplicationRecord
   belongs_to :application, optional: true
   has_many :invoice_items, dependent: :destroy
 
-  accepts_nested_attributes_for :invoice_items, allow_destroy: true
+  accepts_nested_attributes_for :invoice_items, 
+                                allow_destroy: true,
+                                reject_if: ->(attributes) { attributes['description'].blank? && attributes['unit_price'].blank? }
 
   # enumは整数ベースで定義（データベースのinteger型に対応）
   enum status: { draft: 0, sent: 1, paid: 2, overdue: 3, cancelled: 4 }
