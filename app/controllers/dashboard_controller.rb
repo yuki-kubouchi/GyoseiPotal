@@ -46,10 +46,18 @@ class DashboardController < ApplicationController
     
     # 今月の請求総額を計算
     @invoice_total_yen = if defined?(Invoice)
-      # 既存レコードのカラム値を使用
-      Invoice.where(issue_date: Time.current.all_month)
-             .where(status: ['sent', 'paid'])
-             .sum(:total)
+      # 送付済み(sent)、入金済み(paid)、期限切れ(overdue)の請求書を集計
+      # 下書き(draft)とキャンセル(cancelled)は除外
+      invoices = Invoice.where(issue_date: Time.current.all_month)
+                       .where(status: [:sent, :paid, :overdue])
+      
+      if Invoice.column_names.include?('total')
+        # total カラムが存在する場合はそれを使用
+        invoices.sum(:total)
+      else
+        # total カラムがない場合は手動で計算
+        invoices.to_a.sum(&:calculate_total)
+      end
     else
       0
     end
